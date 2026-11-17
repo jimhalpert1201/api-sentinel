@@ -2,7 +2,7 @@ import uuid
 from datetime import UTC, datetime
 from typing import Any
 
-from sqlalchemy import JSON, Boolean, DateTime, ForeignKey, Integer, String, Uuid
+from sqlalchemy import JSON, Boolean, CheckConstraint, DateTime, ForeignKey, Integer, String, Uuid
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.core.database import Base
@@ -82,9 +82,16 @@ class Monitor(Base):
         "CheckResult",
         back_populates="monitor",
         cascade="all, delete-orphan",
+        passive_deletes=True,
     )
     incidents = relationship(
         "Incident",
         back_populates="monitor",
         cascade="all, delete-orphan",
+        passive_deletes=True,
+    )
+
+    __table_args__ = (
+        CheckConstraint("interval_seconds > 0", name="ck_monitors_interval_positive"),
+        CheckConstraint("timeout_seconds > 0", name="ck_monitors_timeout_positive"),
     )

@@ -1,9 +1,20 @@
 import uuid
 
+from fastapi import HTTPException, status
 from sqlalchemy.orm import Session
 
 from app.models.monitor import Monitor
 from app.schemas.monitor import MonitorCreate, MonitorUpdate
+
+NON_NULLABLE_MONITOR_FIELDS = {
+    "name",
+    "url",
+    "http_method",
+    "interval_seconds",
+    "timeout_seconds",
+    "expected_status_code",
+    "is_active",
+}
 
 
 def list_monitors(db: Session, user_id: uuid.UUID) -> list[Monitor]:
@@ -39,7 +50,13 @@ def create_monitor(db: Session, user_id: uuid.UUID, data: MonitorCreate) -> Moni
 def update_monitor(db: Session, monitor: Monitor, data: MonitorUpdate) -> Monitor:
     """Partially update an existing monitor record."""
     update_data = data.model_dump(exclude_unset=True)
+
     for key, value in update_data.items():
+        if key in NON_NULLABLE_MONITOR_FIELDS and value is None:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=f"Field '{key}' cannot be null",
+            )
         if key == "url" and value is not None:
             setattr(monitor, key, str(value))
         else:

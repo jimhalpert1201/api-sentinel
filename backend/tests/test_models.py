@@ -89,9 +89,11 @@ def test_create_monitor_and_cascade_delete(db_session):
     db_session.commit()
 
     # Verify associations
-    assert db_session.query(CheckResult).filter_by(monitor_id=monitor.id).count() == 1
-    assert db_session.query(Incident).filter_by(monitor_id=monitor.id).count() == 1
-    assert db_session.query(IncidentEvent).filter_by(incident_id=incident.id).count() == 1
+    monitor_id = monitor.id
+    incident_id = incident.id
+    assert db_session.query(CheckResult).filter_by(monitor_id=monitor_id).count() == 1
+    assert db_session.query(Incident).filter_by(monitor_id=monitor_id).count() == 1
+    assert db_session.query(IncidentEvent).filter_by(incident_id=incident_id).count() == 1
     assert check.monitor.name == "Production API"
     assert incident.events[0].event_type == "created"
 
@@ -100,6 +102,38 @@ def test_create_monitor_and_cascade_delete(db_session):
     db_session.commit()
 
     # Results, Incidents, and IncidentEvents must be deleted automatically
-    assert db_session.query(CheckResult).filter_by(monitor_id=monitor.id).count() == 0
-    assert db_session.query(Incident).filter_by(monitor_id=monitor.id).count() == 0
-    assert db_session.query(IncidentEvent).filter_by(incident_id=incident.id).count() == 0
+    assert db_session.query(CheckResult).filter_by(monitor_id=monitor_id).count() == 0
+    assert db_session.query(Incident).filter_by(monitor_id=monitor_id).count() == 0
+    assert db_session.query(IncidentEvent).filter_by(incident_id=incident_id).count() == 0
+
+
+def test_sqlite_foreign_key_enforced(db_session):
+    """Verify foreign key constraint raises IntegrityError for non-existent user."""
+    fake_user_id = uuid.uuid4()
+    monitor = Monitor(
+        user_id=fake_user_id,
+        name="Orphan Monitor",
+        url="https://orphan.example.com",
+    )
+    db_session.add(monitor)
+    with pytest.raises(IntegrityError):
+        db_session.commit()
+    db_session.rollback()
+
+
+def test_monitor_db_check_constraints(db_session):
+    """Verify database-level CHECK constraints for interval_seconds and timeout_seconds."""
+    user = User(email="checker@example.com", username="checker", hashed_password="pw")
+    db_session.add(user)
+    db_session.commit()
+
+    bad_monitor = Monitor(
+        user_id=user.id,
+        name="Bad Interval",
+        url="https://example.com",
+        interval_seconds=-10,
+    )
+    db_session.add(bad_monitor)
+    with pytest.raises(IntegrityError):
+        db_session.commit()
+    db_session.rollback()

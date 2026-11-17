@@ -62,6 +62,17 @@ def test_monitor_create_invalid_intervals():
         MonitorCreate(name="Test", url="https://example.com", timeout_seconds=-5)
 
 
+def test_monitor_timeout_exceeding_interval():
+    """Verify MonitorCreate rejects timeout greater than interval."""
+    with pytest.raises(ValidationError, match="timeout_seconds cannot exceed interval_seconds"):
+        MonitorCreate(
+            name="Test",
+            url="https://example.com",
+            interval_seconds=10,
+            timeout_seconds=30,
+        )
+
+
 def test_monitor_create_invalid_method():
     """Verify MonitorCreate normalizes or validates HTTP method."""
     with pytest.raises(ValidationError):

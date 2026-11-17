@@ -1,8 +1,8 @@
 import uuid
 from datetime import datetime
-from typing import Any
+from typing import Any, Self
 
-from pydantic import BaseModel, ConfigDict, Field, HttpUrl
+from pydantic import BaseModel, ConfigDict, Field, HttpUrl, model_validator
 
 from app.schemas.common import HttpMethod
 
@@ -17,6 +17,12 @@ class MonitorBase(BaseModel):
     headers: dict[str, Any] | None = None
     body: dict[str, Any] | None = None
     is_active: bool = True
+
+    @model_validator(mode="after")
+    def validate_timeout_against_interval(self) -> Self:
+        if self.timeout_seconds > self.interval_seconds:
+            raise ValueError("timeout_seconds cannot exceed interval_seconds")
+        return self
 
 
 class MonitorCreate(MonitorBase):
@@ -33,6 +39,16 @@ class MonitorUpdate(BaseModel):
     headers: dict[str, Any] | None = None
     body: dict[str, Any] | None = None
     is_active: bool | None = None
+
+    @model_validator(mode="after")
+    def validate_timeout_against_interval(self) -> Self:
+        if (
+            self.timeout_seconds is not None
+            and self.interval_seconds is not None
+            and self.timeout_seconds > self.interval_seconds
+        ):
+            raise ValueError("timeout_seconds cannot exceed interval_seconds")
+        return self
 
 
 class MonitorResponse(BaseModel):

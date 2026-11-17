@@ -159,6 +159,25 @@ def test_update_monitor(auth_client: TestClient):
     assert updated["url"] == "https://updated.example.com/api"
 
 
+def test_update_monitor_null_fields_rejected(auth_client: TestClient):
+    """Verify PATCH /api/v1/monitors/{id} rejects explicit null for non-nullable fields."""
+    created = auth_client.post(
+        "/api/v1/monitors",
+        json={"name": "Valid Name", "url": "https://valid.example.com/api"},
+    ).json()
+    monitor_id = created["id"]
+
+    # Reject null name
+    res1 = auth_client.patch(f"/api/v1/monitors/{monitor_id}", json={"name": None})
+    assert res1.status_code in (400, 422)
+    assert res1.status_code != 500
+
+    # Reject null url
+    res2 = auth_client.patch(f"/api/v1/monitors/{monitor_id}", json={"url": None})
+    assert res2.status_code in (400, 422)
+    assert res2.status_code != 500
+
+
 def test_update_monitor_not_found(auth_client: TestClient):
     """Verify PATCH /api/v1/monitors/{id} returns 404 for unknown ID."""
     random_id = str(uuid.uuid4())
