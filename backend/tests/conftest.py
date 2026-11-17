@@ -1,31 +1,57 @@
 """
-Pytest fixtures for the API Sentinel test suite.
-
-Provides:
-- Test database session (isolated per test)
-- FastAPI test client
-- Sample user and authentication helpers
+Pytest configuration and test database fixtures.
+Provides an isolated in-memory SQLite database for test suites.
 """
 
-# Fixtures will be implemented when we build the test suite.
-# Key fixtures to create:
-#
-# @pytest.fixture
-# def db_session():
-#     """Provide a clean database session for each test."""
-#     ...
-#
-# @pytest.fixture
-# def client(db_session):
-#     """Provide a FastAPI test client with database override."""
-#     ...
-#
-# @pytest.fixture
-# def test_user(db_session):
-#     """Create and return a test user."""
-#     ...
-#
-# @pytest.fixture
-# def auth_headers(test_user):
-#     """Return authorization headers for the test user."""
-#     ...
+from collections.abc import Generator
+import pytest
+from fastapi.testclient import TestClient
+from sqlalchemy import create_engine
+from sqlalchemy.orm import Session, sessionmaker
+from sqlalchemy.pool import StaticPool
+
+from app.core.database import Base, get_db
+from app.main import app
+
+# In-memory SQLite for instantaneous, isolated tests
+TEST_DATABASE_URL = "sqlite:///:memory:"
+
+test_engine = create_engine(
+    TEST_DATABASE_URL,
+    connect_args={"check_same_thread": False},
+    poolclass=StaticPool,
+)
+
+TestingSessionLocal = sessionmaker(
+    autocommit=False,
+    autoflush=False,
+    bind=test_engine,
+)
+
+
+@pytest.fixture(scope="function")
+def db_session() -> Generator[Session, None, None]:
+    """Create a fresh database schema for every test function, then drop it."""
+    Base.metadata.create_all(bind=test_engine)
+    session = TestingSessionLocal()
+    try:
+        yield session
+    finally:
+        session.close()
+        Base.metadata.drop_all(bind=test_engine)
+
+
+@pytest.fixture(scope="function")
+def client(db_session: Session) -> Generator[TestClient, None, None]:
+    """FastAPI TestClient with overridden get_db dependency."""
+
+    def override_get_db():
+        try:
+            yield db_session
+        finally:
+            pass
+
+    app.dependency_overrides[get_db] = override_get_db
+    with TestClient(app) as test_client:
+        yield test_client
+    app.dependency_overrides.clear()

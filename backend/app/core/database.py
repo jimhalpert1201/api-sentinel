@@ -16,14 +16,25 @@ from sqlalchemy.orm import DeclarativeBase, Session, sessionmaker
 
 from app.core.config import settings
 
-# Create the SQLAlchemy engine with connection pooling
-engine = create_engine(
-    settings.database_url,
-    pool_pre_ping=True,  # Verify connections before using them
-    pool_size=10,         # Maximum number of permanent connections
-    max_overflow=20,      # Additional connections allowed beyond pool_size
-    echo=settings.debug,  # Log SQL queries in debug mode
-)
+# Configure engine parameters based on database dialect
+is_sqlite = settings.database_url.startswith("sqlite")
+
+engine_kwargs = {
+    "echo": settings.debug,
+}
+
+if is_sqlite:
+    engine_kwargs["connect_args"] = {"check_same_thread": False}
+else:
+    engine_kwargs.update(
+        {
+            "pool_pre_ping": True,
+            "pool_size": 10,
+            "max_overflow": 20,
+        }
+    )
+
+engine = create_engine(settings.database_url, **engine_kwargs)
 
 # Session factory — creates new database sessions
 SessionLocal = sessionmaker(
@@ -50,3 +61,4 @@ def get_db() -> Generator[Session, None, None]:
         yield db
     finally:
         db.close()
+
