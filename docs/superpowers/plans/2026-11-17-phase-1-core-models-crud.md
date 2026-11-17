@@ -36,13 +36,13 @@
 - Test: `backend/tests/test_health.py`
 
 **Steps:**
-- [ ] Refine `backend/requirements.txt` to ensure clean compatibility with Python 3.13.
-- [ ] Create Python virtual environment: `python -m venv backend/venv`.
-- [ ] Install dependencies into the virtual environment using `backend/venv/Scripts/pip install -r backend/requirements.txt`.
-- [ ] Create `backend/.env` with local SQLite default: `DATABASE_URL=sqlite:///./sentinel.db`.
-- [ ] Write a test in `backend/tests/test_health.py` validating `GET /health`.
-- [ ] Run test using `pytest` to confirm virtual environment and FastAPI app run cleanly.
-- [ ] Commit changes.
+- [x] Refine `backend/requirements.txt` to ensure clean compatibility with Python 3.13.
+- [x] Create Python virtual environment: `python -m venv backend/venv`.
+- [x] Install dependencies into the virtual environment using `backend/venv/Scripts/pip install -r backend/requirements.txt`.
+- [x] Create `backend/.env` with local SQLite default: `DATABASE_URL=sqlite:///./sentinel.db`.
+- [x] Write a test in `backend/tests/test_health.py` validating `GET /health`.
+- [x] Run test using `pytest` to confirm virtual environment and FastAPI app run cleanly.
+- [x] Commit changes.
 
 ---
 
@@ -57,14 +57,14 @@
 - Test: `backend/tests/test_models.py`
 
 **Steps:**
-- [ ] Write tests in `backend/tests/test_models.py` verifying model creation, defaults, and foreign key cascades.
-- [ ] Run `pytest backend/tests/test_models.py` to confirm failure (Red).
-- [ ] Implement `backend/app/models/user.py` (id, email, username, hashed_password, is_active, role, timestamps).
-- [ ] Implement `backend/app/models/monitor.py` (id, user_id, name, url, http_method, interval_seconds, timeout_seconds, expected_status_code, headers, body, is_active, timestamps).
-- [ ] Implement `backend/app/models/check_result.py` and `backend/app/models/incident.py`.
-- [ ] Register all models in `backend/app/models/__init__.py`.
-- [ ] Run `pytest backend/tests/test_models.py` and confirm all tests pass (Green).
-- [ ] Commit changes.
+- [x] Write tests in `backend/tests/test_models.py` verifying model creation, defaults, and foreign key cascades.
+- [x] Run `pytest backend/tests/test_models.py` to confirm failure (Red).
+- [x] Implement `backend/app/models/user.py` (id, email, username, hashed_password, is_active, role, timestamps).
+- [x] Implement `backend/app/models/monitor.py` (id, user_id, name, url, http_method, interval_seconds, timeout_seconds, expected_status_code, headers, body, is_active, timestamps).
+- [x] Implement `backend/app/models/check_result.py` and `backend/app/models/incident.py`.
+- [x] Register all models in `backend/app/models/__init__.py`.
+- [x] Run `pytest backend/tests/test_models.py` and confirm all tests pass (Green).
+- [x] Commit changes.
 
 ---
 
@@ -76,15 +76,15 @@
 - Test: `backend/tests/test_schemas.py`
 
 **Steps:**
-- [ ] Write schema validation tests in `backend/tests/test_schemas.py` testing invalid URLs, interval bounds, and serialization.
-- [ ] Run `pytest backend/tests/test_schemas.py` to confirm failure (Red).
-- [ ] Implement `backend/app/schemas/monitor.py`:
+- [x] Write schema validation tests in `backend/tests/test_schemas.py` testing invalid URLs, interval bounds, and serialization.
+- [x] Run `pytest backend/tests/test_schemas.py` to confirm failure (Red).
+- [x] Implement `backend/app/schemas/monitor.py`:
   - `MonitorBase`: URL, name, method, interval, timeout, expected status code.
   - `MonitorCreate`: Required fields with Pydantic `HttpUrl` or custom URL validator.
   - `MonitorUpdate`: Optional fields.
   - `MonitorResponse`: Full serialization schema with `from_attributes = True`.
-- [ ] Run `pytest backend/tests/test_schemas.py` to confirm tests pass (Green).
-- [ ] Commit changes.
+- [x] Run `pytest backend/tests/test_schemas.py` to confirm tests pass (Green).
+- [x] Commit changes.
 
 ---
 
@@ -98,19 +98,19 @@
 - Test: `backend/tests/test_api_monitors.py`
 
 **Steps:**
-- [ ] Write integration tests in `backend/tests/test_api_monitors.py` covering:
+- [x] Write integration tests in `backend/tests/test_api_monitors.py` covering:
   - `POST /api/v1/monitors` (Create monitor)
   - `GET /api/v1/monitors` (List monitors)
   - `GET /api/v1/monitors/{id}` (Get single monitor)
   - `PATCH /api/v1/monitors/{id}` (Update monitor)
   - `DELETE /api/v1/monitors/{id}` (Delete monitor)
   - `404 Not Found` for non-existent IDs.
-- [ ] Run `pytest backend/tests/test_api_monitors.py` to confirm failure (Red).
-- [ ] Implement `backend/app/services/monitor_service.py` with standalone helper functions (Ponytail style).
-- [ ] Implement `backend/app/api/v1/endpoints/monitors.py`.
-- [ ] Aggregate endpoints in `backend/app/api/v1/router.py` and mount in `backend/app/main.py`.
-- [ ] Run `pytest` to confirm all integration tests pass (Green).
-- [ ] Commit changes.
+- [x] Run `pytest backend/tests/test_api_monitors.py` to confirm failure (Red).
+- [x] Implement `backend/app/services/monitor_service.py` with standalone helper functions (Ponytail style).
+- [x] Implement `backend/app/api/v1/endpoints/monitors.py`.
+- [x] Aggregate endpoints in `backend/app/api/v1/router.py` and mount in `backend/app/main.py`.
+- [x] Run `pytest` to confirm all integration tests pass (Green).
+- [x] Commit changes.
 
 ---
 
@@ -120,7 +120,7 @@
 - All modified backend files
 
 **Steps:**
-- [ ] Run full Pytest test suite across all tests.
-- [ ] Check code formatting and static safety.
-- [ ] Review changes using CodeRabbit and SonarQube rules.
-- [ ] Final commit for Phase 1 Milestone.
+- [x] Run full Pytest test suite across all tests.
+- [x] Check code formatting and static safety.
+- [x] Review changes using CodeRabbit and SonarQube rules.
+- [x] Final commit for Phase 1 Milestone.
