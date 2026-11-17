@@ -122,6 +122,16 @@ def test_get_monitor_not_found(auth_client: TestClient):
     assert response.status_code == 404
 
 
+def test_get_current_user_dependency(db_session: Session):
+    """Verify get_current_user auto-provisions dev user when DB is empty and reuses it."""
+    user1 = get_current_user(db=db_session)
+    assert user1 is not None
+    assert user1.email == "dev@sentinel.local"
+
+    user2 = get_current_user(db=db_session)
+    assert user2.id == user1.id
+
+
 def test_update_monitor(auth_client: TestClient):
     """Verify PATCH /api/v1/monitors/{id} partially updates a monitor."""
     created = auth_client.post(
@@ -136,13 +146,17 @@ def test_update_monitor(auth_client: TestClient):
 
     patch_res = auth_client.patch(
         f"/api/v1/monitors/{monitor_id}",
-        json={"name": "Updated Name", "interval_seconds": 120},
+        json={
+            "name": "Updated Name",
+            "url": "https://updated.example.com/api",
+            "interval_seconds": 120,
+        },
     )
     assert patch_res.status_code == 200
     updated = patch_res.json()
     assert updated["name"] == "Updated Name"
     assert updated["interval_seconds"] == 120
-    assert updated["url"] == "https://init.example.com/api"
+    assert updated["url"] == "https://updated.example.com/api"
 
 
 def test_update_monitor_not_found(auth_client: TestClient):
