@@ -236,3 +236,4 @@
 - [ ] Run `ruff check backend` and `ruff format --check backend`.
 - [ ] Review changes using CodeRabbit and SonarQube rules.
 - [ ] Final commit for Phase 2 Milestone.
+
