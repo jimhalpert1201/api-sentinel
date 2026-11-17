@@ -30,7 +30,7 @@ TestingSessionLocal = sessionmaker(
 
 
 @pytest.fixture(scope="function")
-def db_session() -> Generator[Session, None, None]:
+def db_session() -> Generator[Session]:
     """Create a fresh database schema for every test function, then drop it."""
     Base.metadata.create_all(bind=test_engine)
     session = TestingSessionLocal()
@@ -42,7 +42,7 @@ def db_session() -> Generator[Session, None, None]:
 
 
 @pytest.fixture(scope="function")
-def client(db_session: Session) -> Generator[TestClient, None, None]:
+def client(db_session: Session) -> Generator[TestClient]:
     """FastAPI TestClient with overridden get_db dependency."""
 
     def override_get_db():

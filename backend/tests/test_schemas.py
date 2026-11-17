@@ -65,9 +65,7 @@ def test_monitor_create_invalid_intervals():
 def test_monitor_create_invalid_method():
     """Verify MonitorCreate normalizes or validates HTTP method."""
     with pytest.raises(ValidationError):
-        MonitorCreate(
-            name="Test", url="https://example.com", http_method="INVALID_METHOD"
-        )
+        MonitorCreate(name="Test", url="https://example.com", http_method="INVALID_METHOD")
 
 
 def test_monitor_update_partial():

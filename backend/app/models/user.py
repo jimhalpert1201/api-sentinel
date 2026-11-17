@@ -54,6 +54,4 @@ class User(Base):
     )
 
     # Relationships
-    monitors = relationship(
-        "Monitor", back_populates="user", cascade="all, delete-orphan"
-    )
+    monitors = relationship("Monitor", back_populates="user", cascade="all, delete-orphan")

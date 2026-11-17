@@ -8,6 +8,7 @@ Run with:
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
+from app.api.v1.router import api_v1_router
 from app.core.config import settings
 
 app = FastAPI(
@@ -40,6 +41,4 @@ async def health_check():
 
 
 # ---- API v1 Router ----
-# Will be added when we build the endpoint modules:
-# from app.api.v1.router import api_v1_router
-# app.include_router(api_v1_router, prefix="/api/v1")
+app.include_router(api_v1_router, prefix="/api/v1")

@@ -42,9 +42,7 @@ def test_user_email_unique(db_session):
 
 def test_create_monitor_and_cascade_delete(db_session):
     """Test monitor creation, relationships, and cascade deletion."""
-    user = User(
-        email="monitor_owner@example.com", username="owner", hashed_password="pw"
-    )
+    user = User(email="monitor_owner@example.com", username="owner", hashed_password="pw")
     db_session.add(user)
     db_session.commit()
 
@@ -93,9 +91,7 @@ def test_create_monitor_and_cascade_delete(db_session):
     # Verify associations
     assert db_session.query(CheckResult).filter_by(monitor_id=monitor.id).count() == 1
     assert db_session.query(Incident).filter_by(monitor_id=monitor.id).count() == 1
-    assert (
-        db_session.query(IncidentEvent).filter_by(incident_id=incident.id).count() == 1
-    )
+    assert db_session.query(IncidentEvent).filter_by(incident_id=incident.id).count() == 1
     assert check.monitor.name == "Production API"
     assert incident.events[0].event_type == "created"
 
@@ -106,6 +102,4 @@ def test_create_monitor_and_cascade_delete(db_session):
     # Results, Incidents, and IncidentEvents must be deleted automatically
     assert db_session.query(CheckResult).filter_by(monitor_id=monitor.id).count() == 0
     assert db_session.query(Incident).filter_by(monitor_id=monitor.id).count() == 0
-    assert (
-        db_session.query(IncidentEvent).filter_by(incident_id=incident.id).count() == 0
-    )
+    assert db_session.query(IncidentEvent).filter_by(incident_id=incident.id).count() == 0

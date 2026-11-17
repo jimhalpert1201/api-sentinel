@@ -48,7 +48,7 @@ class Base(DeclarativeBase):
     """Base class for all SQLAlchemy models."""
 
 
-def get_db() -> Generator[Session, None, None]:
+def get_db() -> Generator[Session]:
     """
     FastAPI dependency that provides a database session.
 

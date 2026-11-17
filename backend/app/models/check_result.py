@@ -48,7 +48,5 @@ class CheckResult(Base):
     monitor = relationship("Monitor", back_populates="check_results")
 
     __table_args__ = (
-        Index(
-            "ix_check_results_monitor_id_checked_at", "monitor_id", checked_at.desc()
-        ),
+        Index("ix_check_results_monitor_id_checked_at", "monitor_id", checked_at.desc()),
     )
