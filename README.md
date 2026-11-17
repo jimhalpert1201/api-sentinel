@@ -17,11 +17,13 @@ Monitor your APIs, track uptime and latency, detect failures, and manage inciden
 | **DevOps** | Docker, Docker Compose, GitHub Actions |
 | **Testing** | Pytest |
 
-## Features (Planned)
+## Features
 
-- [x] Project scaffolding
-- [ ] User registration & authentication (JWT + refresh tokens)
-- [ ] API monitor management (CRUD)
+- [x] Project scaffolding & engineering guidelines
+- [x] Core database models (User, Monitor, CheckResult, Incident) with SQLite/PostgreSQL duality
+- [x] API monitor management (CRUD endpoints with user data isolation)
+- [x] Alembic schema migrations (`backend/alembic/`)
+- [ ] User registration & authentication (JWT + refresh tokens) — *In Progress (Phase 2)*
 - [ ] Automated health checks with configurable intervals
 - [ ] Response time & uptime tracking
 - [ ] Incident detection & management
@@ -34,8 +36,8 @@ Monitor your APIs, track uptime and latency, detect failures, and manage inciden
 
 ### Prerequisites
 
-- Python 3.11+
-- PostgreSQL 15+
+- Python 3.13+
+- PostgreSQL 15+ (optional for local dev; SQLite is enabled by default)
 - Redis 7+
 - Node.js 18+ (for frontend)
 
@@ -95,7 +97,8 @@ api-sentinel/
 
 ## Current Status
 
-🟡 **Phase 1 — Software Engineering Fundamentals**
+- 🟢 **Phase 1 Complete:** Software Engineering Fundamentals, Database Models, Alembic Migrations, and Monitor CRUD (27/27 tests passing, 99% coverage).
+- 🟡 **Phase 2 In Progress:** JWT Authentication & User Management.
 
 ## License
 

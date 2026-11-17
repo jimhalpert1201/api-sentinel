@@ -41,12 +41,14 @@ Thumbs.db
 docker-compose.override.yml
 
 # ============================================
-# Testing
+# Testing & Code Quality
 # ============================================
 .coverage
 htmlcov/
 .pytest_cache/
 .mypy_cache/
+.ruff_cache/
+.superpowers/
 
 # ============================================
 # Environment & Secrets
