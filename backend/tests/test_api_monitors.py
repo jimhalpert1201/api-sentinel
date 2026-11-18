@@ -217,6 +217,12 @@ def test_delete_monitor_not_found(auth_client: TestClient):
     assert response.status_code == 404
 
 
+def test_monitors_unauthenticated_rejected(client: TestClient):
+    """Verify accessing /api/v1/monitors without Bearer token returns 401."""
+    response = client.get("/api/v1/monitors")
+    assert response.status_code == 401
+
+
 def test_monitor_user_isolation(auth_client: TestClient, other_user: User):
     """Verify a user cannot access or modify another user's monitor."""
     # test_user creates a monitor
