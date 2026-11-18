@@ -116,3 +116,63 @@ def test_change_password_wrong_current(client: TestClient):
     )
     assert response.status_code == 400
     assert "Incorrect current password" in response.json()["detail"]
+
+
+def test_get_profile_expired_token(client: TestClient):
+    """Verify expired token returns 401 with Token expired."""
+    import uuid
+    from datetime import UTC, datetime, timedelta
+
+    import jwt
+    from app.core.config import settings
+
+    user_id = uuid.uuid4()
+    expired_token = jwt.encode(
+        {
+            "sub": str(user_id),
+            "type": "access",
+            "exp": datetime.now(UTC) - timedelta(minutes=10),
+        },
+        settings.jwt_secret_key,
+        algorithm=settings.jwt_algorithm,
+    )
+    res = client.get("/api/v1/users/me", headers={"Authorization": f"Bearer {expired_token}"})
+    assert res.status_code == 401
+    assert "Token expired" in res.json()["detail"]
+
+
+def test_get_profile_invalid_token_type(client: TestClient):
+    """Verify refresh token used as Bearer token returns 401."""
+    import uuid
+
+    import jwt
+    from app.core.config import settings
+
+    user_id = uuid.uuid4()
+    token = jwt.encode(
+        {"sub": str(user_id), "type": "refresh"},
+        settings.jwt_secret_key,
+        algorithm=settings.jwt_algorithm,
+    )
+    res = client.get("/api/v1/users/me", headers={"Authorization": f"Bearer {token}"})
+    assert res.status_code == 401
+
+
+def test_get_profile_inactive_user(client: TestClient, db_session):
+    """Verify inactive user token returns 401."""
+    from app.auth.jwt import create_access_token
+    from app.models.user import User
+
+    inactive_user = User(
+        email="inactive@example.com",
+        username="inactive_u",
+        hashed_password="pw",
+        is_active=False,
+    )
+    db_session.add(inactive_user)
+    db_session.commit()
+
+    token = create_access_token(inactive_user.id)
+    res = client.get("/api/v1/users/me", headers={"Authorization": f"Bearer {token}"})
+    assert res.status_code == 401
+    assert "Inactive user account" in res.json()["detail"]
