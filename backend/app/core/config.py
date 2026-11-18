@@ -29,7 +29,7 @@ class Settings(BaseSettings):
     redis_url: str = "redis://localhost:6379/0"
 
     # ---- JWT Authentication ----
-    jwt_secret_key: str = "CHANGE_ME_TO_A_RANDOM_SECRET"
+    jwt_secret_key: str = "CHANGE_ME_TO_A_RANDOM_SECRET_KEY_WITH_AT_LEAST_32_BYTES"
     jwt_algorithm: str = "HS256"
     access_token_expire_minutes: int = 15
     refresh_token_expire_days: int = 7
