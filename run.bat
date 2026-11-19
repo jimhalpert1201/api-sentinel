@@ -6,7 +6,7 @@ title API Sentinel — Service Launcher
 cd /d "%~dp0"
 
 echo ================================================================
-echo               API SENTINEL - SERVICE LAUNCHER
+echo               API SENTINEL - FULL STACK LAUNCHER
 echo ================================================================
 echo.
 
@@ -28,7 +28,7 @@ if not exist "backend\.env" (
 )
 
 :: 3. Run Database Migrations
-echo [1/3] Applying latest database migrations...
+echo [1/4] Applying latest database migrations...
 cd backend
 call .\venv\Scripts\alembic.exe upgrade head
 if errorlevel 1 (
@@ -37,11 +37,23 @@ if errorlevel 1 (
     pause
     exit /b 1
 )
+cd ..
 
-:: 4. Summary & Links
+:: 4. Check Frontend Dependencies
+echo.
+echo [2/4] Verifying frontend dependencies...
+if not exist "frontend\node_modules" (
+    echo [INFO] Installing frontend packages (first run)...
+    cd frontend
+    call npm install
+    cd ..
+)
+
+:: 5. Summary & Links
 echo.
 echo ================================================================
-echo [2/3] API Sentinel Engine Initialized:
+echo [3/4] API Sentinel Fleet Ready:
+echo   * Web Dashboard:     http://localhost:5173
 echo   * API Server:        http://127.0.0.1:8000
 echo   * Swagger UI Docs:   http://127.0.0.1:8000/docs
 echo   * ReDoc API Docs:    http://127.0.0.1:8000/redoc
@@ -50,14 +62,18 @@ echo   * Background Worker: In-Process Async Monitor Scheduler
 echo ================================================================
 echo.
 
-:: 5. Open Browser to API Documentation
-start "" cmd /c "timeout /t 2 /nobreak >nul & start http://127.0.0.1:8000/docs"
+:: 6. Launch Frontend Dev Server in Separate Console Window
+echo Starting Frontend (Vite) in background window...
+start "API Sentinel - Web Dashboard (Vite)" cmd /c "cd /d \"%~dp0frontend\" && npm run dev"
 
-:: 6. Launch FastAPI Server with Uvicorn
-echo [3/3] Starting FastAPI server on http://127.0.0.1:8000 (Ctrl+C to stop)...
+:: 7. Open Browser to Dashboard
+start "" cmd /c "timeout /t 3 /nobreak >nul & start http://localhost:5173"
+
+:: 8. Launch FastAPI Server in Main Window
+echo [4/4] Starting FastAPI server on http://127.0.0.1:8000 (Ctrl+C to stop)...
 echo.
+cd backend
 call .\venv\Scripts\uvicorn.exe app.main:app --host 127.0.0.1 --port 8000 --reload
 
 cd ..
 pause
-
