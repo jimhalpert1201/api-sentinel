@@ -1,6 +1,6 @@
 @echo off
 setlocal enabledelayedexpansion
-title API Sentinel — Service Launcher
+title API Sentinel - Service Launcher
 
 :: Ensure working directory is the script folder (api-sentinel root)
 cd /d "%~dp0"
@@ -43,9 +43,9 @@ cd ..
 echo.
 echo [2/4] Verifying frontend dependencies...
 if not exist "frontend\node_modules" (
-    echo [INFO] Installing frontend packages (first run)...
+    echo [INFO] Installing frontend packages...
     cd frontend
-    call npm install
+    call npm.cmd install
     cd ..
 )
 
@@ -64,7 +64,7 @@ echo.
 
 :: 6. Launch Frontend Dev Server in Separate Console Window
 echo Starting Frontend (Vite) in background window...
-start "API Sentinel - Web Dashboard (Vite)" cmd /c "cd /d \"%~dp0frontend\" && npm run dev"
+start "API Sentinel - Web Dashboard (Vite)" cmd /c "cd /d %~dp0frontend && npm.cmd run dev"
 
 :: 7. Open Browser to Dashboard
 start "" cmd /c "timeout /t 3 /nobreak >nul & start http://localhost:5173"
