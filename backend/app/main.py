@@ -5,6 +5,8 @@ Run with:
     uvicorn app.main:app --reload
 """
 
+from contextlib import asynccontextmanager
+
 from fastapi import FastAPI, Request, status
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
@@ -12,6 +14,22 @@ from sqlalchemy.exc import IntegrityError
 
 from app.api.v1.router import api_v1_router
 from app.core.config import settings
+from app.workers.scheduler import AsyncMonitorScheduler
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    """Manage application startup and shutdown lifecycle events."""
+    scheduler: AsyncMonitorScheduler | None = None
+    if settings.scheduler_enabled:
+        scheduler = AsyncMonitorScheduler(interval_seconds=settings.scheduler_interval_seconds)
+        scheduler.start()
+    try:
+        yield
+    finally:
+        if scheduler:
+            await scheduler.stop()
+
 
 app = FastAPI(
     title=settings.app_name,
@@ -19,6 +37,7 @@ app = FastAPI(
     description="API monitoring and observability platform",
     docs_url="/docs",
     redoc_url="/redoc",
+    lifespan=lifespan,
 )
 
 # ---- CORS Middleware ----

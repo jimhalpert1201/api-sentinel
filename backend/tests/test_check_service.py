@@ -250,4 +250,3 @@ async def test_execute_http_probe_generic_exception():
         assert result.is_successful is False
         assert result.status_code is None
         assert "Unexpected socket error" in (result.error_message or "")
-
