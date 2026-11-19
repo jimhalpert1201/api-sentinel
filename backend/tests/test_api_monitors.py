@@ -123,13 +123,22 @@ def test_get_monitor_not_found(auth_client: TestClient):
 
 
 def test_get_current_user_dependency(db_session: Session):
-    """Verify get_current_user auto-provisions dev user when DB is empty and reuses it."""
-    user1 = get_current_user(db=db_session)
-    assert user1 is not None
-    assert user1.email == "dev@sentinel.local"
+    """Verify get_current_user resolves active user from valid JWT."""
+    from app.auth.jwt import create_access_token
 
-    user2 = get_current_user(db=db_session)
-    assert user2.id == user1.id
+    user = User(
+        email="dep_test@example.com",
+        username="deptest",
+        hashed_password="hashed_pw",
+    )
+    db_session.add(user)
+    db_session.commit()
+    db_session.refresh(user)
+
+    token = create_access_token(user.id)
+    resolved = get_current_user(token=token, db=db_session)
+    assert resolved.id == user.id
+    assert resolved.email == "dep_test@example.com"
 
 
 def test_update_monitor(auth_client: TestClient):
@@ -206,6 +215,12 @@ def test_delete_monitor_not_found(auth_client: TestClient):
     random_id = str(uuid.uuid4())
     response = auth_client.delete(f"/api/v1/monitors/{random_id}")
     assert response.status_code == 404
+
+
+def test_monitors_unauthenticated_rejected(client: TestClient):
+    """Verify accessing /api/v1/monitors without Bearer token returns 401."""
+    response = client.get("/api/v1/monitors")
+    assert response.status_code == 401
 
 
 def test_monitor_user_isolation(auth_client: TestClient, other_user: User):
