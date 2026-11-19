@@ -18,8 +18,8 @@ export const incidentsApi = {
   },
 
   acknowledgeIncident: async (id: string, notes?: string): Promise<IncidentResponse> => {
-    const response = await apiClient.post<IncidentResponse>(`/incidents/${id}/acknowledge`, null, {
-      params: notes ? { notes } : undefined,
+    const response = await apiClient.patch<IncidentResponse>(`/incidents/${id}/acknowledge`, {
+      description: notes || undefined,
     });
     return response.data;
   },
@@ -29,3 +29,4 @@ export const incidentsApi = {
     return response.data;
   },
 };
+

@@ -95,7 +95,7 @@ export const IncidentTimeline: FC<IncidentTimelineProps> = ({ incidentId }) => {
                   </span>
                 </div>
                 <p className="text-xs text-slate-400 font-mono bg-slate-950/60 p-2 rounded-lg border border-slate-800/80">
-                  {evt.message}
+                  {evt.description || evt.message || 'No details provided'}
                 </p>
               </div>
             </div>
@@ -105,3 +105,4 @@ export const IncidentTimeline: FC<IncidentTimelineProps> = ({ incidentId }) => {
     </div>
   );
 };
+

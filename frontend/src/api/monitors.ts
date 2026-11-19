@@ -53,9 +53,16 @@ export const monitorsApi = {
     pageSize = 20,
     statusFilter = 'all'
   ): Promise<PaginatedResponse<CheckResult>> => {
+    const isSuccessful =
+      statusFilter === 'passed' ? true : statusFilter === 'failed' ? false : undefined;
     const response = await apiClient.get<PaginatedResponse<CheckResult>>(`/monitors/${id}/checks`, {
-      params: { page, page_size: pageSize, status_filter: statusFilter },
+      params: {
+        page,
+        page_size: pageSize,
+        ...(isSuccessful !== undefined ? { is_successful: isSuccessful } : {}),
+      },
     });
     return response.data;
   },
 };
+

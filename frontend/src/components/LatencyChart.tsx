@@ -145,3 +145,4 @@ export const LatencyChart: FC<LatencyChartProps> = ({
     </div>
   );
 };
+

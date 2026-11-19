@@ -91,7 +91,7 @@ export const MonitorDetailPage: FC = () => {
         setChecks(res.items);
         setTotalChecks(res.total);
         setCurrentPage(res.page);
-        setTotalPages(res.pages);
+        setTotalPages(res.pages ?? Math.max(1, Math.ceil(res.total / (res.page_size || 10))));
       } catch (err) {
         console.error('Failed to load checks:', err);
       } finally {

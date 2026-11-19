@@ -18,6 +18,8 @@ export interface IncidentEvent {
   id: string;
   incident_id: string;
   event_type: string;
-  message: string;
+  description: string;
+  message?: string;
   created_at: string;
 }
+

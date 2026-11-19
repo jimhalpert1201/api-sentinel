@@ -197,3 +197,4 @@ export const RegisterPage: FC = () => {
     </div>
   );
 };
+

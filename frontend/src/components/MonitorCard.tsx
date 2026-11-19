@@ -248,3 +248,4 @@ export const MonitorCard: FC<MonitorCardProps> = ({
     </div>
   );
 };
+
