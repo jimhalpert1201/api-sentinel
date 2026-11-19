@@ -159,7 +159,7 @@ export const IncidentsPage: FC = () => {
       </div>
 
       {/* Filter Tabs */}
-      <div className="flex items-center gap-2 p-1.5 rounded-2xl bg-slate-900 border border-slate-800 text-xs font-medium w-fit flex-wrap">
+      <div className="flex items-center gap-2 p-1.5 rounded-2xl bg-[#0e1526] border border-slate-800 text-xs font-medium w-fit flex-wrap font-mono">
         <button
           type="button"
           onClick={() => setStatusFilter('all')}
@@ -213,7 +213,7 @@ export const IncidentsPage: FC = () => {
           <p className="text-sm font-medium">Loading incident telemetry...</p>
         </div>
       ) : filteredIncidents.length === 0 ? (
-        <div className="py-20 text-center bg-slate-900/50 border border-slate-800/80 rounded-2xl p-8">
+        <div className="py-20 text-center bg-[#0e1526]/50 border border-slate-800/80 rounded-2xl p-8">
           <div className="w-12 h-12 rounded-2xl bg-emerald-500/10 text-emerald-400 flex items-center justify-center mx-auto mb-4 border border-emerald-500/20">
             <CheckCircle2 className="w-6 h-6" />
           </div>
@@ -236,7 +236,7 @@ export const IncidentsPage: FC = () => {
             return (
               <div
                 key={incident.id}
-                className="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-sm space-y-4 transition-all"
+                className="bg-[#0e1526] border border-slate-800/80 rounded-2xl p-5 shadow-sm space-y-4 transition-all"
               >
                 {/* Incident Card Top Row */}
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
@@ -244,19 +244,19 @@ export const IncidentsPage: FC = () => {
                     <div className="flex items-center gap-2.5 flex-wrap">
                       {/* Status badge */}
                       {isOpen && (
-                        <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-rose-500/10 text-rose-400 border border-rose-500/30">
+                        <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-rose-500/10 text-rose-400 border border-rose-500/30 font-mono">
                           <span className="w-2 h-2 rounded-full bg-rose-500 animate-ping" />
                           OPEN OUTAGE
                         </span>
                       )}
                       {isAck && (
-                        <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-amber-500/10 text-amber-400 border border-amber-500/30">
+                        <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-amber-500/10 text-amber-400 border border-amber-500/30 font-mono">
                           <span className="w-2 h-2 rounded-full bg-amber-500" />
                           ACKNOWLEDGED
                         </span>
                       )}
                       {isResolved && (
-                        <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/30">
+                        <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 font-mono">
                           <CheckCircle2 className="w-3.5 h-3.5" />
                           RESOLVED
                         </span>
@@ -279,7 +279,7 @@ export const IncidentsPage: FC = () => {
                       {monitor ? (
                         <Link
                           to={`/monitors/${monitor.id}`}
-                          className="inline-flex items-center gap-1 text-xs font-medium text-slate-300 hover:text-emerald-400 transition-colors"
+                          className="inline-flex items-center gap-1 text-xs font-medium text-slate-300 hover:text-emerald-400 transition-colors font-mono"
                         >
                           <span className="underline decoration-slate-600 underline-offset-2">
                             {monitor.name}
@@ -298,7 +298,7 @@ export const IncidentsPage: FC = () => {
                   </div>
 
                   {/* Right Actions & Duration */}
-                  <div className="flex items-center gap-3 self-start md:self-auto">
+                  <div className="flex items-center gap-3 self-start md:self-auto font-mono">
                     <div className="text-right text-xs text-slate-400 hidden sm:block">
                       <div className="flex items-center gap-1 text-slate-300">
                         <Clock className="w-3.5 h-3.5 text-slate-500" />
@@ -314,7 +314,7 @@ export const IncidentsPage: FC = () => {
                       <button
                         type="button"
                         onClick={() => handleOpenAckModal(incident)}
-                        className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/30 text-amber-400 text-xs font-semibold transition-colors"
+                        className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/30 text-amber-400 text-xs font-semibold transition-colors font-mono"
                       >
                         <Bell className="w-3.5 h-3.5" />
                         <span>Acknowledge</span>
@@ -325,7 +325,7 @@ export const IncidentsPage: FC = () => {
                     <button
                       type="button"
                       onClick={() => toggleExpand(incident.id)}
-                      className="p-1.5 rounded-xl bg-slate-950 border border-slate-800 text-slate-400 hover:text-white transition-colors"
+                      className="p-1.5 rounded-xl bg-[#080d19] border border-slate-800 text-slate-400 hover:text-white transition-colors"
                       title={isExpanded ? 'Hide audit timeline' : 'View audit timeline'}
                       aria-label={isExpanded ? 'Hide audit timeline' : 'View audit timeline'}
                     >

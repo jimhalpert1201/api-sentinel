@@ -46,15 +46,17 @@ export const LatencyChart: FC<LatencyChartProps> = ({
   const hasData = chartData.some((pt) => pt.avgLatency != null);
 
   return (
-    <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-sm space-y-4">
+    <div className="bg-[#0e1526] border border-slate-800/80 rounded-2xl p-6 shadow-sm space-y-4">
       {/* Top Header & Window Tabs */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
-          <h3 className="text-base font-bold text-white">Response Time & Latency Trends</h3>
+          <h3 className="text-sm font-bold text-white tracking-tight uppercase font-mono">
+            Response Time & Latency Trends
+          </h3>
           <p className="text-xs text-slate-400">Sliding window average response time (ms)</p>
         </div>
 
-        <div className="flex items-center p-1 rounded-xl bg-slate-950 border border-slate-800 text-xs font-medium self-start sm:self-auto">
+        <div className="flex items-center p-1 rounded-xl bg-[#080d19] border border-slate-800 text-xs font-mono font-medium self-start sm:self-auto">
           {(['24h', '7d', '30d'] as const).map((window) => (
             <button
               key={window}

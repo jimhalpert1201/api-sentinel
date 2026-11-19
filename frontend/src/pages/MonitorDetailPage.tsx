@@ -241,7 +241,7 @@ export const MonitorDetailPage: FC = () => {
       </div>
 
       {/* Monitor Header Card */}
-      <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-sm space-y-4">
+      <div className="bg-[#0e1526] border border-slate-800/80 rounded-2xl p-6 shadow-sm space-y-4">
         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
           <div className="space-y-1">
             <div className="flex items-center gap-3 flex-wrap">
@@ -250,19 +250,19 @@ export const MonitorDetailPage: FC = () => {
               </h1>
 
               {isPaused && (
-                <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-slate-800 text-slate-400 border border-slate-700">
+                <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-slate-800 text-slate-400 border border-slate-700 font-mono">
                   <span className="w-2 h-2 rounded-full bg-slate-500" />
                   PAUSED
                 </span>
               )}
               {isDown && (
-                <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-rose-500/10 text-rose-400 border border-rose-500/30">
+                <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-rose-500/10 text-rose-400 border border-rose-500/30 font-mono">
                   <span className="w-2 h-2 rounded-full bg-rose-500 animate-ping" />
                   DOWN
                 </span>
               )}
               {isUp && (
-                <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/30">
+                <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 font-mono">
                   <span className="w-2 h-2 rounded-full bg-emerald-500" />
                   HEALTHY
                 </span>
@@ -287,16 +287,16 @@ export const MonitorDetailPage: FC = () => {
           </div>
 
           {/* Quick config badges */}
-          <div className="flex items-center gap-3 text-xs flex-wrap">
-            <div className="px-3 py-1.5 rounded-xl bg-slate-950 border border-slate-800 flex items-center gap-1.5 text-slate-300">
+          <div className="flex items-center gap-3 text-xs flex-wrap font-mono">
+            <div className="px-3 py-1.5 rounded-xl bg-[#080d19] border border-slate-800 flex items-center gap-1.5 text-slate-300">
               <Clock className="w-3.5 h-3.5 text-slate-500" />
               <span>Interval: {monitor.interval_seconds}s</span>
             </div>
-            <div className="px-3 py-1.5 rounded-xl bg-slate-950 border border-slate-800 flex items-center gap-1.5 text-slate-300">
+            <div className="px-3 py-1.5 rounded-xl bg-[#080d19] border border-slate-800 flex items-center gap-1.5 text-slate-300">
               <Timer className="w-3.5 h-3.5 text-slate-500" />
               <span>Timeout: {monitor.timeout_seconds}s</span>
             </div>
-            <div className="px-3 py-1.5 rounded-xl bg-slate-950 border border-slate-800 flex items-center gap-1.5 text-slate-300">
+            <div className="px-3 py-1.5 rounded-xl bg-[#080d19] border border-slate-800 flex items-center gap-1.5 text-slate-300">
               <CheckCircle className="w-3.5 h-3.5 text-emerald-400" />
               <span>Expects: {monitor.expected_status_code}</span>
             </div>
@@ -317,7 +317,7 @@ export const MonitorDetailPage: FC = () => {
           <div className="p-4 rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-300 text-xs sm:text-sm flex items-start gap-3">
             <AlertOctagon className="w-5 h-5 flex-shrink-0 mt-0.5 text-rose-400" />
             <div>
-              <p className="font-semibold">Active Outage Incident</p>
+              <p className="font-semibold font-mono">Active Outage Incident</p>
               <p className="text-xs text-rose-200/80 mt-1">
                 Cause: {activeIncident.cause} (Triggered:{' '}
                 {new Date(activeIncident.started_at).toLocaleString()})
@@ -330,39 +330,39 @@ export const MonitorDetailPage: FC = () => {
       {/* KPI Metric Summary Cards */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         {/* Uptime % */}
-        <div className="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-sm">
-          <div className="flex items-center justify-between text-slate-400 mb-2">
-            <span className="text-xs font-semibold uppercase tracking-wider">Uptime ({metricWindow})</span>
+        <div className="bg-[#0e1526] border border-slate-800/80 rounded-2xl p-5 shadow-sm">
+          <div className="flex items-center justify-between text-slate-400 mb-2 font-mono">
+            <span className="text-[11px] font-semibold uppercase tracking-wider">Uptime ({metricWindow})</span>
             <Percent className="w-4 h-4 text-emerald-400" />
           </div>
-          <div className="text-3xl font-extrabold text-white">
+          <div className="text-3xl font-extrabold text-white tracking-tight">
             {summary?.uptime_percentage != null
               ? `${summary.uptime_percentage.toFixed(1)}%`
               : 'N/A'}
           </div>
-          <p className="mt-1 text-xs text-slate-400">
+          <p className="mt-1 text-xs text-slate-400 font-mono">
             {summary?.successful_checks ?? 0} pass / {summary?.total_checks ?? 0} total
           </p>
         </div>
 
         {/* Avg Latency */}
-        <div className="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-sm">
-          <div className="flex items-center justify-between text-slate-400 mb-2">
-            <span className="text-xs font-semibold uppercase tracking-wider">Avg Latency</span>
+        <div className="bg-[#0e1526] border border-slate-800/80 rounded-2xl p-5 shadow-sm">
+          <div className="flex items-center justify-between text-slate-400 mb-2 font-mono">
+            <span className="text-[11px] font-semibold uppercase tracking-wider">Avg Latency</span>
             <Zap className="w-4 h-4 text-amber-400" />
           </div>
-          <div className="text-3xl font-extrabold text-white">
+          <div className="text-3xl font-extrabold text-white tracking-tight">
             {summary?.avg_response_time_ms != null
               ? `${Math.round(summary.avg_response_time_ms)} ms`
               : 'N/A'}
           </div>
-          <p className="mt-1 text-xs text-slate-400">Sliding window average</p>
+          <p className="mt-1 text-xs text-slate-400 font-mono">Sliding window average</p>
         </div>
 
         {/* Percentiles (p50 / p95 / p99) */}
-        <div className="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-sm">
-          <div className="flex items-center justify-between text-slate-400 mb-2">
-            <span className="text-xs font-semibold uppercase tracking-wider">Percentiles</span>
+        <div className="bg-[#0e1526] border border-slate-800/80 rounded-2xl p-5 shadow-sm">
+          <div className="flex items-center justify-between text-slate-400 mb-2 font-mono">
+            <span className="text-[11px] font-semibold uppercase tracking-wider">Percentiles</span>
             <Timer className="w-4 h-4 text-indigo-400" />
           </div>
           <div className="text-lg font-bold text-slate-200 space-y-0.5">
@@ -382,15 +382,15 @@ export const MonitorDetailPage: FC = () => {
         </div>
 
         {/* Failure Count */}
-        <div className="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-sm">
-          <div className="flex items-center justify-between text-slate-400 mb-2">
-            <span className="text-xs font-semibold uppercase tracking-wider">Failed Checks</span>
+        <div className="bg-[#0e1526] border border-slate-800/80 rounded-2xl p-5 shadow-sm">
+          <div className="flex items-center justify-between text-slate-400 mb-2 font-mono">
+            <span className="text-[11px] font-semibold uppercase tracking-wider">Failed Checks</span>
             <AlertOctagon className="w-4 h-4 text-rose-400" />
           </div>
-          <div className="text-3xl font-extrabold text-rose-400">
+          <div className="text-3xl font-extrabold text-rose-400 tracking-tight">
             {summary?.failed_checks ?? 0}
           </div>
-          <p className="mt-1 text-xs text-slate-400">Non-2xx or timeouts</p>
+          <p className="mt-1 text-xs text-slate-400 font-mono">Non-2xx or timeouts</p>
         </div>
       </div>
 

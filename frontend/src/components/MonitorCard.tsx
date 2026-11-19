@@ -93,26 +93,26 @@ export const MonitorCard: FC<MonitorCardProps> = ({
   return (
     <div
       onClick={handleCardClick}
-      className="group relative bg-slate-900 border border-slate-800 hover:border-slate-700/80 rounded-2xl p-5 shadow-lg hover:shadow-xl transition-all cursor-pointer flex flex-col justify-between"
+      className="group relative bg-[#0e1526] border border-slate-800/80 hover:border-slate-700/80 rounded-2xl p-5 shadow-lg hover:shadow-xl transition-all cursor-pointer flex flex-col justify-between"
     >
       <div>
         {/* Top Header: Status Badge & HTTP Method */}
         <div className="flex items-center justify-between gap-2 mb-3">
           <div className="flex items-center gap-2">
             {isPaused && (
-              <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-slate-800 text-slate-400 border border-slate-700">
+              <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-slate-800 text-slate-400 border border-slate-700 font-mono">
                 <span className="w-2 h-2 rounded-full bg-slate-500" />
                 PAUSED
               </span>
             )}
             {isDown && (
-              <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-rose-500/10 text-rose-400 border border-rose-500/30">
+              <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-rose-500/10 text-rose-400 border border-rose-500/30 font-mono">
                 <span className="w-2 h-2 rounded-full bg-rose-500 animate-ping" />
                 DOWN
               </span>
             )}
             {isUp && (
-              <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/30">
+              <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 font-mono">
                 <span className="w-2 h-2 rounded-full bg-emerald-500" />
                 HEALTHY
               </span>
@@ -156,16 +156,16 @@ export const MonitorCard: FC<MonitorCardProps> = ({
         )}
 
         {/* Metric / Ping summary pills */}
-        <div className="mt-4 grid grid-cols-2 gap-2 text-xs">
-          <div className="p-2 rounded-xl bg-slate-950/70 border border-slate-800/80 flex items-center justify-between">
+        <div className="mt-4 grid grid-cols-2 gap-2 text-xs font-mono">
+          <div className="p-2 rounded-xl bg-[#080d19] border border-slate-800/80 flex items-center justify-between">
             <span className="text-slate-400 flex items-center gap-1">
-              <Clock className="w-3 h-3" />
+              <Clock className="w-3 h-3 text-slate-500" />
               Interval
             </span>
             <span className="font-medium text-slate-200">{monitor.interval_seconds}s</span>
           </div>
 
-          <div className="p-2 rounded-xl bg-slate-950/70 border border-slate-800/80 flex items-center justify-between">
+          <div className="p-2 rounded-xl bg-[#080d19] border border-slate-800/80 flex items-center justify-between">
             <span className="text-slate-400">Response</span>
             {lastCheckResult ? (
               <span
