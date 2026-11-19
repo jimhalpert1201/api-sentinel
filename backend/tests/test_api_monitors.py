@@ -251,3 +251,42 @@ def test_monitor_user_isolation(auth_client: TestClient, other_user: User):
     # other_user tries to delete test_user's monitor
     del_res = auth_client.delete(f"/api/v1/monitors/{monitor_id}")
     assert del_res.status_code == 404
+
+
+def test_create_and_update_monitor_with_webhook_url(auth_client: TestClient):
+    """Verify creating and updating a monitor with a valid webhook_url."""
+    webhook = "https://hooks.example.com/alerts"
+    payload = {
+        "name": "Webhook Monitored API",
+        "url": "https://api.example.com/health",
+        "webhook_url": webhook,
+    }
+    create_res = auth_client.post("/api/v1/monitors", json=payload)
+    assert create_res.status_code == 201
+    created_data = create_res.json()
+    assert created_data["webhook_url"] == webhook
+    monitor_id = created_data["id"]
+
+    # Verify GET retrieves the webhook_url
+    get_res = auth_client.get(f"/api/v1/monitors/{monitor_id}")
+    assert get_res.status_code == 200
+    assert get_res.json()["webhook_url"] == webhook
+
+    # Verify PATCH updates the webhook_url
+    new_webhook = "https://hooks.example.com/new-alerts"
+    patch_res = auth_client.patch(
+        f"/api/v1/monitors/{monitor_id}", json={"webhook_url": new_webhook}
+    )
+    assert patch_res.status_code == 200
+    assert patch_res.json()["webhook_url"] == new_webhook
+
+
+def test_create_monitor_invalid_webhook_url_rejected(auth_client: TestClient):
+    """Verify invalid webhook_url returns 422 validation error."""
+    payload = {
+        "name": "Bad Webhook API",
+        "url": "https://api.example.com/health",
+        "webhook_url": "ftp://invalid-scheme.com",
+    }
+    response = auth_client.post("/api/v1/monitors", json=payload)
+    assert response.status_code == 422

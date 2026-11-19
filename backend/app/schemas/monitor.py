@@ -16,6 +16,7 @@ class MonitorBase(BaseModel):
     expected_status_code: int = Field(default=200, ge=100, le=599)
     headers: dict[str, Any] | None = None
     body: dict[str, Any] | None = None
+    webhook_url: HttpUrl | None = None
     is_active: bool = True
 
     @model_validator(mode="after")
@@ -38,6 +39,7 @@ class MonitorUpdate(BaseModel):
     expected_status_code: int | None = Field(default=None, ge=100, le=599)
     headers: dict[str, Any] | None = None
     body: dict[str, Any] | None = None
+    webhook_url: HttpUrl | None = None
     is_active: bool | None = None
 
     @model_validator(mode="after")
@@ -64,6 +66,7 @@ class MonitorResponse(BaseModel):
     expected_status_code: int
     headers: dict[str, Any] | None = None
     body: dict[str, Any] | None = None
+    webhook_url: str | None = None
     is_active: bool
     created_at: datetime
     updated_at: datetime

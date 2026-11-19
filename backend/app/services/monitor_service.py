@@ -39,6 +39,7 @@ def create_monitor(db: Session, user_id: uuid.UUID, data: MonitorCreate) -> Moni
         expected_status_code=data.expected_status_code,
         headers=data.headers,
         body=data.body,
+        webhook_url=str(data.webhook_url) if data.webhook_url else None,
         is_active=data.is_active,
     )
     db.add(monitor)
@@ -57,7 +58,7 @@ def update_monitor(db: Session, monitor: Monitor, data: MonitorUpdate) -> Monito
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail=f"Field '{key}' cannot be null",
             )
-        if key == "url" and value is not None:
+        if key in ("url", "webhook_url") and value is not None:
             setattr(monitor, key, str(value))
         else:
             setattr(monitor, key, value)
