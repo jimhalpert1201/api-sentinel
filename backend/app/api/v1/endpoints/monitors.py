@@ -1,5 +1,6 @@
 import uuid
 from datetime import datetime
+from typing import Literal
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy.orm import Session
@@ -10,8 +11,9 @@ from app.models.check_result import CheckResult
 from app.models.user import User
 from app.schemas.check_result import CheckResultResponse
 from app.schemas.common import PaginatedResponse
+from app.schemas.metrics import MonitorMetricsResponse
 from app.schemas.monitor import MonitorCreate, MonitorResponse, MonitorUpdate
-from app.services import check_service, monitor_service
+from app.services import check_service, metrics_service, monitor_service
 
 router = APIRouter()
 
@@ -171,3 +173,24 @@ def get_monitor_checks(
         page=page,
         page_size=page_size,
     )
+
+
+@router.get(
+    "/{id}/metrics",
+    response_model=MonitorMetricsResponse,
+    summary="Get monitor uptime and latency metrics",
+)
+def get_monitor_metrics(
+    id: uuid.UUID,
+    window: Literal["24h", "7d", "30d"] = Query(default="24h"),
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """Retrieve aggregate uptime percentage, latency percentiles, and chart time series."""
+    monitor = monitor_service.get_monitor(db=db, monitor_id=id, user_id=current_user.id)
+    if not monitor:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Monitor not found",
+        )
+    return metrics_service.get_monitor_metrics(db=db, monitor=monitor, window=window)

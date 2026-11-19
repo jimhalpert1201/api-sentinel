@@ -58,6 +58,10 @@ class Monitor(Base):
         JSON,
         nullable=True,
     )
+    webhook_url: Mapped[str | None] = mapped_column(
+        String(2048),
+        nullable=True,
+    )
     is_active: Mapped[bool] = mapped_column(
         Boolean,
         default=True,
