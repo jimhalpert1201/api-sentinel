@@ -2,7 +2,7 @@ import uuid
 from datetime import UTC, datetime
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, selectinload
 
 from app.auth.dependencies import get_current_user
 from app.core.database import get_db
@@ -31,6 +31,7 @@ def list_incidents(
     """List all incidents for monitors owned by the authenticated user."""
     query = (
         db.query(Incident)
+        .options(selectinload(Incident.events))
         .join(Monitor, Incident.monitor_id == Monitor.id)
         .filter(Monitor.user_id == current_user.id)
     )
@@ -53,6 +54,7 @@ def get_incident(
     """Retrieve details and timeline events for an owned incident."""
     incident = (
         db.query(Incident)
+        .options(selectinload(Incident.events))
         .join(Monitor, Incident.monitor_id == Monitor.id)
         .filter(Incident.id == id, Monitor.user_id == current_user.id)
         .first()
@@ -125,12 +127,15 @@ def acknowledge_incident(
             detail="Incident not found",
         )
 
+    updated = False
+    if data and data.description is not None:
+        incident.description = data.description
+        updated = True
+
     if incident.status == "open":
         now = datetime.now(UTC)
         incident.status = "acknowledged"
         incident.acknowledged_at = now
-        if data and data.description:
-            incident.description = data.description
 
         event = IncidentEvent(
             incident_id=incident.id,
@@ -139,6 +144,9 @@ def acknowledge_incident(
             created_at=now,
         )
         db.add(event)
+        updated = True
+
+    if updated:
         db.commit()
         db.refresh(incident)
 

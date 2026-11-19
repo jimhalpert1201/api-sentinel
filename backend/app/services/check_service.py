@@ -7,6 +7,7 @@ from typing import Any
 import httpx
 from sqlalchemy.orm import Session
 
+from app.core.config import settings
 from app.models.check_result import CheckResult
 from app.models.monitor import Monitor
 from app.schemas.check_result import CheckExecutionResult
@@ -161,6 +162,7 @@ async def run_monitor_check(db: Session, monitor: Monitor) -> CheckResult:
         db=db,
         monitor_id=monitor.id,
         latest_check=check_record,
+        threshold=settings.incident_threshold_failures,
     )
 
     return check_record
