@@ -11,6 +11,7 @@ from app.schemas.user import (
     UserResponse,
     UserUpdate,
 )
+from app.schemas.webhook import WebhookPayload
 
 __all__ = [
     "ChangePasswordRequest",
@@ -30,4 +31,5 @@ __all__ = [
     "UserRegister",
     "UserResponse",
     "UserUpdate",
+    "WebhookPayload",
 ]

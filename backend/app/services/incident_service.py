@@ -5,6 +5,9 @@ from sqlalchemy.orm import Session
 
 from app.models.check_result import CheckResult
 from app.models.incident import Incident, IncidentEvent
+from app.models.monitor import Monitor
+from app.schemas.webhook import WebhookPayload
+from app.services.webhook_service import dispatch_incident_webhook_safely
 
 
 def evaluate_monitor_incidents(
@@ -12,6 +15,7 @@ def evaluate_monitor_incidents(
     monitor_id: uuid.UUID,
     latest_check: CheckResult,
     threshold: int = 3,
+    monitor: Monitor | None = None,
 ) -> Incident | None:
     """
     Evaluate consecutive health checks for a monitor and manage Incident state transitions.
@@ -67,6 +71,25 @@ def evaluate_monitor_incidents(
             db.add(event)
             db.commit()
             db.refresh(incident)
+
+            if monitor is None:
+                monitor = db.query(Monitor).filter_by(id=monitor_id).first()
+
+            if monitor and monitor.webhook_url:
+                payload = WebhookPayload(
+                    event="incident_created",
+                    incident_id=incident.id,
+                    monitor_id=monitor.id,
+                    monitor_name=monitor.name,
+                    monitor_url=monitor.url,
+                    status=incident.status,
+                    cause=incident.cause,
+                    started_at=incident.started_at,
+                    resolved_at=incident.resolved_at,
+                    description=incident.description,
+                )
+                dispatch_incident_webhook_safely(monitor.webhook_url, payload)
+
             return incident
         return active_incident
 
@@ -89,6 +112,25 @@ def evaluate_monitor_incidents(
         db.add(event)
         db.commit()
         db.refresh(active_incident)
+
+        if monitor is None:
+            monitor = db.query(Monitor).filter_by(id=monitor_id).first()
+
+        if monitor and monitor.webhook_url:
+            payload = WebhookPayload(
+                event="incident_resolved",
+                incident_id=active_incident.id,
+                monitor_id=monitor.id,
+                monitor_name=monitor.name,
+                monitor_url=monitor.url,
+                status=active_incident.status,
+                cause=active_incident.cause,
+                started_at=active_incident.started_at,
+                resolved_at=active_incident.resolved_at,
+                description=active_incident.description,
+            )
+            dispatch_incident_webhook_safely(monitor.webhook_url, payload)
+
         return active_incident
 
     return active_incident

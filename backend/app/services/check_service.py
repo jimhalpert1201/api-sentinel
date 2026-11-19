@@ -163,6 +163,7 @@ async def run_monitor_check(db: Session, monitor: Monitor) -> CheckResult:
         monitor_id=monitor.id,
         latest_check=check_record,
         threshold=settings.incident_threshold_failures,
+        monitor=monitor,
     )
 
     return check_record
