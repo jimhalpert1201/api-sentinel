@@ -10,6 +10,7 @@ from sqlalchemy.orm import Session
 from app.models.check_result import CheckResult
 from app.models.monitor import Monitor
 from app.schemas.check_result import CheckExecutionResult
+from app.services.incident_service import evaluate_monitor_incidents
 
 
 async def _perform_single_probe(
@@ -155,4 +156,11 @@ async def run_monitor_check(db: Session, monitor: Monitor) -> CheckResult:
         monitor_id=monitor.id,
         result=execution_result,
     )
+
+    evaluate_monitor_incidents(
+        db=db,
+        monitor_id=monitor.id,
+        latest_check=check_record,
+    )
+
     return check_record
