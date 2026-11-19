@@ -48,6 +48,10 @@ class Settings(BaseSettings):
     incident_threshold_failures: int = 3
     incident_recovery_threshold: int = 3
 
+    # ---- Background Scheduler ----
+    scheduler_enabled: bool = True
+    scheduler_interval_seconds: int = 10
+
 
 # Singleton instance — import this throughout the application
 settings = Settings()
