@@ -1,4 +1,5 @@
 import { useState, FC } from 'react';
+import { toast } from 'sonner';
 import { CheckResult } from '../types/monitor';
 import {
   CheckCircle2,
@@ -11,6 +12,7 @@ import {
   Zap,
   AlertTriangle,
   Info,
+  Copy,
 } from 'lucide-react';
 
 interface CheckHistoryTableProps {
@@ -36,8 +38,21 @@ export const CheckHistoryTable: FC<CheckHistoryTableProps> = ({
 }) => {
   const [selectedCheck, setSelectedCheck] = useState<CheckResult | null>(null);
 
+  const handleCopyDiagnostics = async (check: CheckResult) => {
+    try {
+      await navigator.clipboard.writeText(JSON.stringify(check, null, 2));
+      toast.success('Diagnostics copied to clipboard', {
+        description: `Probe ID: ${check.id.slice(0, 8)}... (${check.status_code ?? 'Err'} • ${
+          check.response_time_ms != null ? `${Math.round(check.response_time_ms)}ms` : 'N/A'
+        })`,
+      });
+    } catch {
+      toast.error('Failed to copy diagnostics');
+    }
+  };
+
   return (
-    <div className="bg-[#0e1526] border border-slate-800/80 rounded-2xl p-6 shadow-sm space-y-4">
+    <div className="surface-card rounded-2xl p-6 space-y-4">
       {/* Table Header & Controls */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
@@ -190,9 +205,9 @@ export const CheckHistoryTable: FC<CheckHistoryTableProps> = ({
           aria-labelledby="check-detail-title"
           className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm"
         >
-          <div className="relative w-full max-w-md bg-[#0e1526] border border-slate-800 rounded-2xl shadow-2xl p-6 space-y-5 animate-in fade-in zoom-in-95 duration-150">
+          <div className="relative w-full max-w-md surface-card rounded-2xl p-6 space-y-5 animate-in fade-in zoom-in-95 duration-150">
             {/* Header */}
-            <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+            <div className="flex items-center justify-between border-b border-white/[0.08] pb-3">
               <div className="flex items-center gap-2.5">
                 <div
                   className={`w-8 h-8 rounded-lg flex items-center justify-center ${
@@ -221,7 +236,7 @@ export const CheckHistoryTable: FC<CheckHistoryTableProps> = ({
                 type="button"
                 onClick={() => setSelectedCheck(null)}
                 aria-label="Close dialog"
-                className="p-1 text-slate-400 hover:text-white"
+                className="btn-tactile p-1 text-slate-400 hover:text-white"
               >
                 <X className="w-4 h-4" />
               </button>
@@ -229,13 +244,13 @@ export const CheckHistoryTable: FC<CheckHistoryTableProps> = ({
 
             {/* Metrics Breakdown */}
             <div className="grid grid-cols-2 gap-3 text-xs font-mono">
-              <div className="p-3 rounded-xl bg-[#080d19] border border-slate-800 space-y-1">
+              <div className="p-3 rounded-xl bg-[#080d19] border border-white/[0.06] space-y-1">
                 <span className="text-slate-400 flex items-center gap-1 text-[11px]">
                   <Clock className="w-3 h-3 text-slate-500" />
                   Status Code
                 </span>
                 <span
-                  className={`text-base font-bold ${
+                  className={`text-base font-bold tabular-nums ${
                     selectedCheck.status_code && selectedCheck.status_code < 400
                       ? 'text-emerald-400'
                       : 'text-rose-400'
@@ -245,12 +260,12 @@ export const CheckHistoryTable: FC<CheckHistoryTableProps> = ({
                 </span>
               </div>
 
-              <div className="p-3 rounded-xl bg-[#080d19] border border-slate-800 space-y-1">
+              <div className="p-3 rounded-xl bg-[#080d19] border border-white/[0.06] space-y-1">
                 <span className="text-slate-400 flex items-center gap-1 text-[11px]">
                   <Zap className="w-3 h-3 text-amber-400" />
                   Response Time
                 </span>
-                <span className="text-base font-bold text-white">
+                <span className="text-base font-bold text-white tabular-nums">
                   {selectedCheck.response_time_ms != null
                     ? `${Math.round(selectedCheck.response_time_ms)} ms`
                     : 'N/A'}
@@ -259,9 +274,9 @@ export const CheckHistoryTable: FC<CheckHistoryTableProps> = ({
             </div>
 
             {/* Timestamp */}
-            <div className="p-3 rounded-xl bg-[#080d19] border border-slate-800 text-xs font-mono space-y-1">
+            <div className="p-3 rounded-xl bg-[#080d19] border border-white/[0.06] text-xs font-mono space-y-1">
               <span className="text-slate-400 text-[11px]">Execution Timestamp</span>
-              <p className="text-slate-200">
+              <p className="text-slate-200 tabular-nums">
                 {new Date(selectedCheck.checked_at).toISOString()} ({new Date(selectedCheck.checked_at).toLocaleString()})
               </p>
             </div>
@@ -277,12 +292,21 @@ export const CheckHistoryTable: FC<CheckHistoryTableProps> = ({
               </div>
             )}
 
-            {/* Close Button */}
-            <div className="flex justify-end pt-2">
+            {/* Modal Actions */}
+            <div className="flex items-center justify-between pt-2">
+              <button
+                type="button"
+                onClick={() => handleCopyDiagnostics(selectedCheck)}
+                className="btn-tactile inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-slate-900 border border-white/[0.08] text-slate-300 hover:text-white text-xs font-semibold font-mono"
+              >
+                <Copy className="w-3.5 h-3.5 text-emerald-400" />
+                <span>Copy Diagnostics</span>
+              </button>
+
               <button
                 type="button"
                 onClick={() => setSelectedCheck(null)}
-                className="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-white text-xs font-semibold font-mono"
+                className="btn-tactile px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-white text-xs font-semibold font-mono"
               >
                 Close Inspector
               </button>

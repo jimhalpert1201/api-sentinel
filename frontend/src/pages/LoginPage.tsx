@@ -1,5 +1,6 @@
 import { useState, FormEvent, FC } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
+import { toast } from 'sonner';
 import { useAuth } from '../context/AuthContext';
 import { Activity, AlertTriangle, AlertCircle, Loader2 } from 'lucide-react';
 import axios from 'axios';
@@ -26,23 +27,32 @@ export const LoginPage: FC = () => {
 
     try {
       await login({ email, password });
+      toast.success('Welcome back to API Sentinel', {
+        description: 'Connected to telemetry engine',
+      });
       navigate(from, { replace: true });
     } catch (err: unknown) {
       if (axios.isAxiosError(err)) {
         if (err.response?.status === 429) {
           setIsRateLimited(true);
           setError('Too many failed login attempts. Please wait 60 seconds before trying again.');
+          toast.error('Rate limited (429)', {
+            description: 'Too many attempts. Cooldown period is active.',
+          });
         } else if (err.response?.data?.detail) {
-          setError(
+          const detail =
             typeof err.response.data.detail === 'string'
               ? err.response.data.detail
-              : 'Invalid email or password.'
-          );
+              : 'Invalid email or password.';
+          setError(detail);
+          toast.error('Authentication failed', { description: detail });
         } else {
           setError('Unable to log in. Please check your network connection.');
+          toast.error('Connection error');
         }
       } else {
         setError('An unexpected error occurred. Please try again.');
+        toast.error('Unexpected error occurred');
       }
     } finally {
       setIsSubmitting(false);
@@ -50,8 +60,8 @@ export const LoginPage: FC = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-slate-950 px-4 py-12">
-      <div className="w-full max-w-md space-y-8 bg-slate-900/90 border border-slate-800 p-8 rounded-2xl shadow-2xl backdrop-blur-sm">
+    <div className="min-h-screen flex items-center justify-center bg-[#080d19] px-4 py-12">
+      <div className="w-full max-w-md space-y-8 surface-card p-8 rounded-2xl">
         {/* Header */}
         <div className="text-center">
           <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 mb-4 shadow-inner">
@@ -138,7 +148,7 @@ export const LoginPage: FC = () => {
           <button
             type="submit"
             disabled={isSubmitting}
-            className="w-full flex items-center justify-center gap-2 py-3 px-4 rounded-xl bg-emerald-500 hover:bg-emerald-600 disabled:opacity-50 disabled:cursor-not-allowed text-slate-950 font-semibold text-sm transition-colors shadow-lg shadow-emerald-500/20"
+            className="btn-tactile w-full flex items-center justify-center gap-2 py-3 px-4 rounded-xl bg-emerald-500 hover:bg-emerald-400 disabled:opacity-50 disabled:cursor-not-allowed text-slate-950 font-semibold text-sm shadow-[inset_0_1px_0_0_rgba(255,255,255,0.3),0_4px_12px_rgba(16,185,129,0.3)]"
           >
             {isSubmitting ? (
               <>

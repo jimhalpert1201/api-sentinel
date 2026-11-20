@@ -1,4 +1,5 @@
 import { useState, useEffect, FormEvent, FC } from 'react';
+import { toast } from 'sonner';
 import { MonitorResponse, MonitorCreate, MonitorUpdate } from '../types/monitor';
 import { monitorsApi } from '../api/monitors';
 import {
@@ -164,6 +165,9 @@ export const MonitorModal: FC<MonitorModalProps> = ({
         };
         const updated = await monitorsApi.updateMonitor(initialMonitor.id, updatePayload);
         onSuccess(updated);
+        toast.success(`Monitor "${name}" updated`, {
+          description: `Interval: ${intervalSeconds}s • Method: ${method}`,
+        });
       } else {
         const createPayload: MonitorCreate = {
           name,
@@ -177,22 +181,25 @@ export const MonitorModal: FC<MonitorModalProps> = ({
         };
         const created = await monitorsApi.createMonitor(createPayload);
         onSuccess(created);
+        toast.success(`Monitor "${name}" deployed`, {
+          description: `Tracking ${url} every ${intervalSeconds}s`,
+        });
       }
       onClose();
     } catch (err: unknown) {
+      let errMsg = 'Failed to save monitor. Please check your network connection.';
       if (axios.isAxiosError(err)) {
         if (err.response?.data?.detail) {
-          setError(
+          errMsg =
             typeof err.response.data.detail === 'string'
               ? err.response.data.detail
-              : JSON.stringify(err.response.data.detail)
-          );
-        } else {
-          setError('Failed to save monitor. Please check your network connection.');
+              : JSON.stringify(err.response.data.detail);
         }
-      } else {
-        setError('An unexpected error occurred. Please try again.');
       }
+      setError(errMsg);
+      toast.error(isEditing ? 'Failed to update monitor' : 'Failed to deploy monitor', {
+        description: errMsg,
+      });
     } finally {
       setIsSubmitting(false);
     }
@@ -205,7 +212,7 @@ export const MonitorModal: FC<MonitorModalProps> = ({
       aria-labelledby="modal-title"
       className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm overflow-y-auto"
     >
-      <div className="relative w-full max-w-xl bg-[#0e1526] border border-slate-800 rounded-2xl shadow-2xl p-6 sm:p-8 space-y-6 my-8 animate-in fade-in zoom-in-95 duration-150">
+      <div className="relative w-full max-w-xl surface-card rounded-2xl p-6 sm:p-8 space-y-6 my-8 animate-in fade-in zoom-in-95 duration-150">
         {/* Header */}
         <div className="flex items-center justify-between border-b border-slate-800 pb-4">
           <div className="flex items-center gap-3">
@@ -491,14 +498,14 @@ export const MonitorModal: FC<MonitorModalProps> = ({
         </div>
 
         {/* Footer Navigation Actions */}
-        <div className="flex items-center justify-between gap-3 pt-4 border-t border-slate-800">
+        <div className="flex items-center justify-between gap-3 pt-4 border-t border-white/[0.08]">
           <div>
             {step > 1 && (
               <button
                 type="button"
                 onClick={handleBack}
                 disabled={isSubmitting}
-                className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-slate-300 hover:text-white hover:bg-slate-800 text-xs font-semibold transition-colors"
+                className="btn-tactile inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-slate-300 hover:text-white hover:bg-slate-800 text-xs font-semibold"
               >
                 <ArrowLeft className="w-3.5 h-3.5" />
                 <span>Back</span>
@@ -511,7 +518,7 @@ export const MonitorModal: FC<MonitorModalProps> = ({
               type="button"
               onClick={onClose}
               disabled={isSubmitting}
-              className="px-4 py-2 rounded-xl text-slate-400 hover:text-white text-xs font-medium transition-colors"
+              className="btn-tactile px-4 py-2 rounded-xl text-slate-400 hover:text-white text-xs font-medium"
             >
               Cancel
             </button>
@@ -520,7 +527,7 @@ export const MonitorModal: FC<MonitorModalProps> = ({
               <button
                 type="button"
                 onClick={handleNext}
-                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-emerald-400 text-xs font-bold font-mono tracking-wide uppercase transition-colors border border-emerald-500/20"
+                className="btn-tactile inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-emerald-400 text-xs font-bold font-mono tracking-wide uppercase border border-emerald-500/20"
               >
                 <span>Continue</span>
                 <ArrowRight className="w-3.5 h-3.5" />
@@ -530,7 +537,7 @@ export const MonitorModal: FC<MonitorModalProps> = ({
                 type="button"
                 onClick={() => handleSubmit()}
                 disabled={isSubmitting}
-                className="inline-flex items-center gap-1.5 px-5 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-600 disabled:opacity-50 text-slate-950 text-xs font-bold font-mono tracking-wide uppercase transition-colors shadow-md shadow-emerald-500/20"
+                className="btn-tactile inline-flex items-center gap-1.5 px-5 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-400 disabled:opacity-50 text-slate-950 text-xs font-bold font-mono tracking-wide uppercase shadow-[inset_0_1px_0_0_rgba(255,255,255,0.3),0_4px_12px_rgba(16,185,129,0.3)]"
               >
                 {isSubmitting ? (
                   <>
