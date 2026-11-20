@@ -56,9 +56,8 @@ export const MonitorCard: FC<MonitorCardProps> = ({
 
       if (result.is_successful) {
         toast.success(`Probe succeeded for ${monitor.name}`, {
-          description: `Status: ${result.status_code ?? 200} OK • Latency: ${
-            result.response_time_ms != null ? `${Math.round(result.response_time_ms)}ms` : 'N/A'
-          }`,
+          description: `Status: ${result.status_code ?? 200} OK • Latency: ${result.response_time_ms != null ? `${Math.round(result.response_time_ms)}ms` : 'N/A'
+            }`,
         });
       } else {
         toast.error(`Probe failed for ${monitor.name}`, {
@@ -201,9 +200,8 @@ export const MonitorCard: FC<MonitorCardProps> = ({
             <span className="text-slate-400">Response</span>
             {lastCheckResult ? (
               <span
-                className={`font-mono font-medium tabular-nums ${
-                  lastCheckResult.is_successful ? 'text-emerald-400' : 'text-rose-400'
-                }`}
+                className={`font-mono font-medium tabular-nums ${lastCheckResult.is_successful ? 'text-emerald-400' : 'text-rose-400'
+                  }`}
               >
                 {lastCheckResult.response_time_ms != null
                   ? `${Math.round(lastCheckResult.response_time_ms)}ms`
