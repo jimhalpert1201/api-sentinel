@@ -169,9 +169,8 @@ export const MonitorCard: FC<MonitorCardProps> = ({
             <span className="text-slate-400">Response</span>
             {lastCheckResult ? (
               <span
-                className={`font-mono font-medium ${
-                  lastCheckResult.is_successful ? 'text-emerald-400' : 'text-rose-400'
-                }`}
+                className={`font-mono font-medium ${lastCheckResult.is_successful ? 'text-emerald-400' : 'text-rose-400'
+                  }`}
               >
                 {lastCheckResult.response_time_ms != null
                   ? `${Math.round(lastCheckResult.response_time_ms)}ms`

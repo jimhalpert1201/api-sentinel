@@ -62,11 +62,10 @@ export const LatencyChart: FC<LatencyChartProps> = ({
               key={window}
               type="button"
               onClick={() => onWindowChange(window)}
-              className={`px-3 py-1.5 rounded-lg transition-colors ${
-                currentWindow === window
+              className={`px-3 py-1.5 rounded-lg transition-colors ${currentWindow === window
                   ? 'bg-slate-800 text-emerald-400 font-semibold shadow-sm'
                   : 'text-slate-400 hover:text-slate-200'
-              }`}
+                }`}
             >
               {window.toUpperCase()}
             </button>

@@ -234,9 +234,8 @@ export const MonitorModal: FC<MonitorModalProps> = ({
         {/* Guided Step Indicator (Section 14) */}
         <div className="flex items-center justify-between px-2 text-xs font-mono">
           <div
-            className={`flex items-center gap-2 ${
-              step >= 1 ? 'text-emerald-400 font-bold' : 'text-slate-600'
-            }`}
+            className={`flex items-center gap-2 ${step >= 1 ? 'text-emerald-400 font-bold' : 'text-slate-600'
+              }`}
           >
             <span className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] ${step >= 1 ? 'bg-emerald-500/20 border border-emerald-500/40 text-emerald-300' : 'bg-slate-800 text-slate-500'}`}>
               1
@@ -247,9 +246,8 @@ export const MonitorModal: FC<MonitorModalProps> = ({
           <div className={`h-[1px] flex-1 mx-3 ${step >= 2 ? 'bg-emerald-500/40' : 'bg-slate-800'}`} />
 
           <div
-            className={`flex items-center gap-2 ${
-              step >= 2 ? 'text-emerald-400 font-bold' : 'text-slate-600'
-            }`}
+            className={`flex items-center gap-2 ${step >= 2 ? 'text-emerald-400 font-bold' : 'text-slate-600'
+              }`}
           >
             <span className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] ${step >= 2 ? 'bg-emerald-500/20 border border-emerald-500/40 text-emerald-300' : 'bg-slate-800 text-slate-500'}`}>
               2
@@ -260,9 +258,8 @@ export const MonitorModal: FC<MonitorModalProps> = ({
           <div className={`h-[1px] flex-1 mx-3 ${step === 3 ? 'bg-emerald-500/40' : 'bg-slate-800'}`} />
 
           <div
-            className={`flex items-center gap-2 ${
-              step === 3 ? 'text-emerald-400 font-bold' : 'text-slate-600'
-            }`}
+            className={`flex items-center gap-2 ${step === 3 ? 'text-emerald-400 font-bold' : 'text-slate-600'
+              }`}
           >
             <span className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] ${step === 3 ? 'bg-emerald-500/20 border border-emerald-500/40 text-emerald-300' : 'bg-slate-800 text-slate-500'}`}>
               3
