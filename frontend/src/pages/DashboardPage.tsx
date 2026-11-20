@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useMemo, FC } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { toast } from 'sonner';
 import { useAuth } from '../context/AuthContext';
 import { MonitorResponse, CheckResult } from '../types/monitor';
@@ -176,15 +176,25 @@ export const DashboardPage: FC = () => {
                 ALL SYSTEMS OPERATIONAL
               </span>
             ) : downMonitors > 0 ? (
-              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-rose-500/10 text-rose-400 border border-rose-500/30 font-mono animate-pulse">
+              <Link
+                to="/incidents"
+                className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-rose-500/15 hover:bg-rose-500/25 text-rose-400 border border-rose-500/40 font-mono animate-pulse transition-all cursor-pointer shadow-sm shadow-rose-950/40"
+                title="Click to view active outage incidents"
+              >
                 <ShieldAlert className="w-3.5 h-3.5" />
-                {downMonitors} OUTAGE DETECTED
-              </span>
+                <span>{downMonitors} OUTAGE DETECTED</span>
+                <span className="text-[10px] font-bold">&rarr;</span>
+              </Link>
             ) : (
-              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-amber-500/10 text-amber-400 border border-amber-500/30 font-mono">
+              <Link
+                to="/incidents"
+                className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-amber-500/15 hover:bg-amber-500/25 text-amber-400 border border-amber-500/40 font-mono transition-all cursor-pointer"
+                title="Click to view incidents"
+              >
                 <AlertTriangle className="w-3.5 h-3.5" />
-                INVESTIGATING INCIDENT
-              </span>
+                <span>INVESTIGATING INCIDENT</span>
+                <span className="text-[10px] font-bold">&rarr;</span>
+              </Link>
             )}
 
             <span className="text-xs text-slate-400 font-mono tabular-nums">
@@ -240,24 +250,45 @@ export const DashboardPage: FC = () => {
         </div>
 
         {/* Down Outages */}
-        <div className="surface-card rounded-2xl p-5">
+        <button
+          type="button"
+          onClick={() => setStatusFilter(statusFilter === 'down' ? 'all' : 'down')}
+          className={`surface-card rounded-2xl p-5 text-left transition-all w-full cursor-pointer ${
+            statusFilter === 'down' ? 'border-rose-500/60 ring-1 ring-rose-500/30' : 'hover:border-rose-500/30'
+          }`}
+          title="Filter by down monitors"
+        >
           <div className="flex items-center justify-between text-rose-400 mb-2">
             <span className="text-[11px] font-semibold uppercase tracking-wider font-mono">Down</span>
             <AlertTriangle className="w-4 h-4" />
           </div>
-          <div className="text-3xl font-extrabold text-rose-400 tracking-tight tabular-nums">{downMonitors}</div>
+          <div className="text-3xl font-extrabold text-rose-400 tracking-tight tabular-nums flex items-baseline justify-between">
+            <span>{downMonitors}</span>
+            <span className="text-xs font-normal text-rose-400/80 font-mono">
+              {statusFilter === 'down' ? 'Active Filter' : 'Filter Fleet'}
+            </span>
+          </div>
           <p className="mt-1 text-xs text-slate-400">Threshold breaches</p>
-        </div>
+        </button>
 
         {/* Active Incidents */}
-        <div className="surface-card rounded-2xl p-5">
+        <Link
+          to="/incidents"
+          className="surface-card hover:border-amber-500/40 rounded-2xl p-5 block transition-all group/inc cursor-pointer"
+          title="View all incidents"
+        >
           <div className="flex items-center justify-between text-amber-400 mb-2">
             <span className="text-[11px] font-semibold uppercase tracking-wider font-mono">Active Incidents</span>
-            <Zap className="w-4 h-4" />
+            <Zap className="w-4 h-4 group-hover/inc:scale-110 transition-transform" />
           </div>
-          <div className="text-3xl font-extrabold text-amber-400 tracking-tight tabular-nums">{totalActiveIncidents}</div>
+          <div className="text-3xl font-extrabold text-amber-400 tracking-tight tabular-nums flex items-baseline justify-between">
+            <span>{totalActiveIncidents}</span>
+            <span className="text-xs font-normal text-amber-400/80 group-hover/inc:translate-x-0.5 transition-transform font-mono">
+              View &rarr;
+            </span>
+          </div>
           <p className="mt-1 text-xs text-slate-400">Open or investigating</p>
-        </div>
+        </Link>
       </div>
 
       {/* 3. System Health Dot Matrix (Section 10 of Design Direction) */}

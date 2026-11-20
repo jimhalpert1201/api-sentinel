@@ -4,6 +4,7 @@ import { toast } from 'sonner';
 import { MonitorResponse, CheckResult } from '../types/monitor';
 import { IncidentResponse } from '../types/incident';
 import { monitorsApi } from '../api/monitors';
+import { incidentsApi } from '../api/incidents';
 import {
   Activity,
   Play,
@@ -60,9 +61,43 @@ export const MonitorCard: FC<MonitorCardProps> = ({
             }`,
         });
       } else {
-        toast.error(`Probe failed for ${monitor.name}`, {
-          description: result.error_message || `HTTP ${result.status_code ?? 'Error'} returned`,
-        });
+        // Query whether an incident is now active for this monitor
+        let hasActiveIncident = false;
+        try {
+          const incs = await incidentsApi.listIncidents({ monitor_id: monitor.id });
+          hasActiveIncident = incs.some(
+            (inc) => inc.monitor_id === monitor.id && inc.status !== 'resolved'
+          );
+        } catch {
+          // ignore error
+        }
+
+        if (hasActiveIncident && !activeIncident) {
+          // 3rd consecutive failure triggered an incident
+          toast.error(`🚨 Incident Triggered: ${monitor.name} is DOWN`, {
+            description: 'Consecutive failure threshold reached (N=3). Redirecting to Incidents...',
+            action: {
+              label: 'View Incidents →',
+              onClick: () => navigate('/incidents'),
+            },
+            duration: 5000,
+          });
+          setTimeout(() => {
+            navigate('/incidents');
+          }, 1500);
+        } else if (hasActiveIncident || isDown) {
+          toast.error(`Probe failed for ${monitor.name}`, {
+            description: result.error_message || `HTTP ${result.status_code ?? 'Error'} returned`,
+            action: {
+              label: 'View Incident →',
+              onClick: () => navigate('/incidents'),
+            },
+          });
+        } else {
+          toast.error(`Probe failed for ${monitor.name}`, {
+            description: result.error_message || `HTTP ${result.status_code ?? 'Error'} returned`,
+          });
+        }
       }
 
       if (onCheckComplete) {
@@ -175,14 +210,27 @@ export const MonitorCard: FC<MonitorCardProps> = ({
           </p>
         </div>
 
-        {/* Incident Alert Banner if Down */}
+        {/* Interactive Incident Alert Banner if Down */}
         {isDown && activeIncident && (
-          <div className="mt-3 p-2.5 rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-300 text-xs flex items-start gap-2">
-            <AlertOctagon className="w-4 h-4 flex-shrink-0 mt-0.5" />
-            <div className="truncate">
-              <span className="font-semibold">Incident: </span>
-              <span>{activeIncident.cause}</span>
+          <div
+            onClick={(e) => {
+              e.stopPropagation();
+              navigate('/incidents');
+            }}
+            className="mt-3 p-2.5 rounded-xl bg-rose-500/15 hover:bg-rose-500/25 border border-rose-500/30 text-rose-300 text-xs flex items-center justify-between gap-2 transition-all cursor-pointer group/incident shadow-sm shadow-rose-950/40"
+            title="Click to view incident in Incidents tab"
+          >
+            <div className="flex items-center gap-2 truncate">
+              <AlertOctagon className="w-4 h-4 flex-shrink-0 text-rose-400 animate-pulse" />
+              <div className="truncate">
+                <span className="font-semibold text-rose-200">Incident: </span>
+                <span>{activeIncident.cause}</span>
+              </div>
             </div>
+            <span className="flex items-center gap-1 font-semibold text-rose-400 group-hover/incident:translate-x-0.5 transition-transform shrink-0 font-mono text-[11px]">
+              <span>View</span>
+              <span>&rarr;</span>
+            </span>
           </div>
         )}
 

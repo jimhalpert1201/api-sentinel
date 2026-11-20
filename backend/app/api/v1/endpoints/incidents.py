@@ -25,6 +25,7 @@ router = APIRouter()
 )
 def list_incidents(
     status: str | None = Query(default=None),
+    monitor_id: uuid.UUID | None = Query(default=None),
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
@@ -35,6 +36,8 @@ def list_incidents(
         .join(Monitor, Incident.monitor_id == Monitor.id)
         .filter(Monitor.user_id == current_user.id)
     )
+    if monitor_id is not None:
+        query = query.filter(Incident.monitor_id == monitor_id)
     if status is not None:
         query = query.filter(Incident.status == status)
 

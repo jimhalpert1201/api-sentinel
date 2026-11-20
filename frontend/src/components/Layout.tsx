@@ -1,7 +1,8 @@
-import { useState, FC } from 'react';
+import { useState, useEffect, FC } from 'react';
 import { NavLink, Outlet, useNavigate, useLocation } from 'react-router-dom';
 import { toast } from 'sonner';
 import { useAuth } from '../context/AuthContext';
+import { incidentsApi } from '../api/incidents';
 import {
   Activity,
   Bell,
@@ -20,6 +21,28 @@ export const Layout: FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [activeIncidentCount, setActiveIncidentCount] = useState<number>(0);
+
+  useEffect(() => {
+    let isMounted = true;
+    const fetchActiveCount = async () => {
+      if (!user) return;
+      try {
+        const incs = await incidentsApi.listIncidents();
+        const active = incs.filter((i) => i.status !== 'resolved').length;
+        if (isMounted) setActiveIncidentCount(active);
+      } catch {
+        // quiet catch
+      }
+    };
+
+    fetchActiveCount();
+    const interval = setInterval(fetchActiveCount, 10000);
+    return () => {
+      isMounted = false;
+      clearInterval(interval);
+    };
+  }, [user, location.pathname]);
 
   const handleLogout = async () => {
     await logout();
@@ -113,6 +136,11 @@ export const Layout: FC = () => {
                 >
                   <Icon className="w-4 h-4" />
                   <span>{item.label}</span>
+                  {item.to === '/incidents' && activeIncidentCount > 0 && (
+                    <span className="ml-auto px-2 py-0.5 rounded-full text-[10px] font-mono font-bold bg-rose-500/20 text-rose-400 border border-rose-500/30 animate-pulse">
+                      {activeIncidentCount}
+                    </span>
+                  )}
                 </NavLink>
               );
             })}

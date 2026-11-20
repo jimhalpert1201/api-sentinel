@@ -138,9 +138,40 @@ export const MonitorDetailPage: FC = () => {
           }`,
         });
       } else {
-        toast.error('Probe failed', {
-          description: res.error_message || `HTTP ${res.status_code ?? 'Error'}`,
-        });
+        // Query whether an incident is active for this monitor
+        let hasActive = false;
+        try {
+          const incs = await incidentsApi.listIncidents({ monitor_id: id });
+          hasActive = incs.some((inc) => inc.monitor_id === id && inc.status !== 'resolved');
+        } catch {
+          // ignore
+        }
+
+        if (hasActive && !activeIncident) {
+          toast.error(`🚨 Incident Triggered: ${monitor?.name || 'Monitor'} is DOWN`, {
+            description: 'Consecutive failure threshold reached (N=3). Redirecting to Incidents...',
+            action: {
+              label: 'View Incidents →',
+              onClick: () => navigate('/incidents'),
+            },
+            duration: 5000,
+          });
+          setTimeout(() => {
+            navigate('/incidents');
+          }, 1500);
+        } else if (hasActive || isDown) {
+          toast.error('Probe failed', {
+            description: res.error_message || `HTTP ${res.status_code ?? 'Error'}`,
+            action: {
+              label: 'View Incident →',
+              onClick: () => navigate('/incidents'),
+            },
+          });
+        } else {
+          toast.error('Probe failed', {
+            description: res.error_message || `HTTP ${res.status_code ?? 'Error'}`,
+          });
+        }
       }
       // Refresh metrics, checks, and monitor
       await Promise.all([
@@ -329,15 +360,24 @@ export const MonitorDetailPage: FC = () => {
 
         {/* Down Banner if active incident */}
         {isDown && activeIncident && (
-          <div className="p-4 rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-300 text-xs sm:text-sm flex items-start gap-3">
-            <AlertOctagon className="w-5 h-5 flex-shrink-0 mt-0.5 text-rose-400" />
-            <div>
-              <p className="font-semibold font-mono">Active Outage Incident</p>
-              <p className="text-xs text-rose-200/80 mt-1">
-                Cause: {activeIncident.cause} (Triggered:{' '}
-                {new Date(activeIncident.started_at).toLocaleString()})
-              </p>
+          <div className="p-4 rounded-xl bg-rose-500/15 border border-rose-500/30 text-rose-300 text-xs sm:text-sm flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-md shadow-rose-950/40">
+            <div className="flex items-start gap-3">
+              <AlertOctagon className="w-5 h-5 flex-shrink-0 mt-0.5 text-rose-400 animate-pulse" />
+              <div>
+                <p className="font-semibold font-mono text-rose-200">Active Outage Incident</p>
+                <p className="text-xs text-rose-300/80 mt-1">
+                  Cause: {activeIncident.cause} (Triggered:{' '}
+                  {new Date(activeIncident.started_at).toLocaleString()})
+                </p>
+              </div>
             </div>
+            <Link
+              to="/incidents"
+              className="btn-tactile inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-rose-500/20 hover:bg-rose-500/30 border border-rose-500/40 text-rose-200 text-xs font-semibold self-start sm:self-auto shrink-0 transition-colors"
+            >
+              <span>View in Incidents</span>
+              <span>&rarr;</span>
+            </Link>
           </div>
         )}
       </div>
