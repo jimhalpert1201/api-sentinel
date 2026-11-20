@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback, FC } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
+import { toast } from 'sonner';
 import { MonitorResponse, CheckResult } from '../types/monitor';
 import { MonitorMetricsResponse } from '../types/metrics';
 import { IncidentResponse } from '../types/incident';
@@ -129,15 +130,27 @@ export const MonitorDetailPage: FC = () => {
     if (!id) return;
     setIsChecking(true);
     try {
-      await monitorsApi.triggerCheck(id);
+      const res = await monitorsApi.triggerCheck(id);
+      if (res.is_successful) {
+        toast.success('Probe succeeded', {
+          description: `Status: ${res.status_code ?? 200} OK • Latency: ${
+            res.response_time_ms != null ? `${Math.round(res.response_time_ms)}ms` : 'N/A'
+          }`,
+        });
+      } else {
+        toast.error('Probe failed', {
+          description: res.error_message || `HTTP ${res.status_code ?? 'Error'}`,
+        });
+      }
       // Refresh metrics, checks, and monitor
       await Promise.all([
         fetchMonitor(),
         fetchMetrics(metricWindow),
         fetchChecks(currentPage, checkStatusFilter),
       ]);
-    } catch (err) {
+    } catch (err: unknown) {
       console.error('Manual check failed:', err);
+      toast.error('Failed to trigger probe');
     } finally {
       setIsChecking(false);
     }
@@ -148,9 +161,11 @@ export const MonitorDetailPage: FC = () => {
     if (window.confirm(`Are you sure you want to permanently delete monitor "${monitor.name}"?`)) {
       try {
         await monitorsApi.deleteMonitor(monitor.id);
+        toast.success(`Monitor "${monitor.name}" deleted`);
         navigate('/', { replace: true });
       } catch (err) {
         console.error('Failed to delete monitor:', err);
+        toast.error('Failed to delete monitor');
       }
     }
   };
@@ -203,7 +218,7 @@ export const MonitorDetailPage: FC = () => {
             type="button"
             onClick={handleTriggerCheck}
             disabled={isChecking}
-            className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/30 text-emerald-400 text-xs font-semibold transition-all disabled:opacity-50"
+            className="btn-tactile flex items-center gap-1.5 px-4 py-2 rounded-xl bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/30 text-emerald-400 text-xs font-semibold disabled:opacity-50"
           >
             {isChecking ? (
               <>
@@ -223,7 +238,7 @@ export const MonitorDetailPage: FC = () => {
             onClick={() => setIsEditModalOpen(true)}
             aria-label="Edit monitor"
             title="Edit monitor"
-            className="p-2 rounded-xl bg-slate-900 border border-slate-800 text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"
+            className="btn-tactile p-2 rounded-xl bg-slate-900 border border-white/[0.08] text-slate-400 hover:text-white hover:bg-slate-800"
           >
             <Edit2 className="w-4 h-4" />
           </button>
@@ -233,7 +248,7 @@ export const MonitorDetailPage: FC = () => {
             onClick={handleDelete}
             aria-label="Delete monitor"
             title="Delete monitor"
-            className="p-2 rounded-xl bg-slate-900 border border-slate-800 text-slate-400 hover:text-rose-400 hover:bg-rose-500/10 transition-colors"
+            className="btn-tactile p-2 rounded-xl bg-slate-900 border border-white/[0.08] text-slate-400 hover:text-rose-400 hover:bg-rose-500/10"
           >
             <Trash2 className="w-4 h-4" />
           </button>
@@ -241,7 +256,7 @@ export const MonitorDetailPage: FC = () => {
       </div>
 
       {/* Monitor Header Card */}
-      <div className="bg-[#0e1526] border border-slate-800/80 rounded-2xl p-6 shadow-sm space-y-4">
+      <div className="surface-card rounded-2xl p-6 space-y-4">
         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
           <div className="space-y-1">
             <div className="flex items-center gap-3 flex-wrap">
@@ -330,28 +345,28 @@ export const MonitorDetailPage: FC = () => {
       {/* KPI Metric Summary Cards */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         {/* Uptime % */}
-        <div className="bg-[#0e1526] border border-slate-800/80 rounded-2xl p-5 shadow-sm">
+        <div className="surface-card rounded-2xl p-5">
           <div className="flex items-center justify-between text-slate-400 mb-2 font-mono">
             <span className="text-[11px] font-semibold uppercase tracking-wider">Uptime ({metricWindow})</span>
             <Percent className="w-4 h-4 text-emerald-400" />
           </div>
-          <div className="text-3xl font-extrabold text-white tracking-tight">
+          <div className="text-3xl font-extrabold text-white tracking-tight tabular-nums">
             {summary?.uptime_percentage != null
               ? `${summary.uptime_percentage.toFixed(1)}%`
               : 'N/A'}
           </div>
-          <p className="mt-1 text-xs text-slate-400 font-mono">
+          <p className="mt-1 text-xs text-slate-400 font-mono tabular-nums">
             {summary?.successful_checks ?? 0} pass / {summary?.total_checks ?? 0} total
           </p>
         </div>
 
         {/* Avg Latency */}
-        <div className="bg-[#0e1526] border border-slate-800/80 rounded-2xl p-5 shadow-sm">
+        <div className="surface-card rounded-2xl p-5">
           <div className="flex items-center justify-between text-slate-400 mb-2 font-mono">
             <span className="text-[11px] font-semibold uppercase tracking-wider">Avg Latency</span>
             <Zap className="w-4 h-4 text-amber-400" />
           </div>
-          <div className="text-3xl font-extrabold text-white tracking-tight">
+          <div className="text-3xl font-extrabold text-white tracking-tight tabular-nums">
             {summary?.avg_response_time_ms != null
               ? `${Math.round(summary.avg_response_time_ms)} ms`
               : 'N/A'}
@@ -360,7 +375,7 @@ export const MonitorDetailPage: FC = () => {
         </div>
 
         {/* Percentiles (p50 / p95 / p99) */}
-        <div className="bg-[#0e1526] border border-slate-800/80 rounded-2xl p-5 shadow-sm">
+        <div className="surface-card rounded-2xl p-5">
           <div className="flex items-center justify-between text-slate-400 mb-2 font-mono">
             <span className="text-[11px] font-semibold uppercase tracking-wider">Percentiles</span>
             <Timer className="w-4 h-4 text-indigo-400" />
@@ -368,26 +383,26 @@ export const MonitorDetailPage: FC = () => {
           <div className="text-lg font-bold text-slate-200 space-y-0.5">
             <div className="flex justify-between text-xs">
               <span className="text-slate-400">p50:</span>
-              <span className="font-mono">{summary?.p50_ms != null ? `${Math.round(summary.p50_ms)}ms` : '—'}</span>
+              <span className="font-mono tabular-nums">{summary?.p50_ms != null ? `${Math.round(summary.p50_ms)}ms` : '—'}</span>
             </div>
             <div className="flex justify-between text-xs">
               <span className="text-slate-400">p95:</span>
-              <span className="font-mono">{summary?.p95_ms != null ? `${Math.round(summary.p95_ms)}ms` : '—'}</span>
+              <span className="font-mono tabular-nums">{summary?.p95_ms != null ? `${Math.round(summary.p95_ms)}ms` : '—'}</span>
             </div>
             <div className="flex justify-between text-xs">
               <span className="text-slate-400">p99:</span>
-              <span className="font-mono">{summary?.p99_ms != null ? `${Math.round(summary.p99_ms)}ms` : '—'}</span>
+              <span className="font-mono tabular-nums">{summary?.p99_ms != null ? `${Math.round(summary.p99_ms)}ms` : '—'}</span>
             </div>
           </div>
         </div>
 
         {/* Failure Count */}
-        <div className="bg-[#0e1526] border border-slate-800/80 rounded-2xl p-5 shadow-sm">
+        <div className="surface-card rounded-2xl p-5">
           <div className="flex items-center justify-between text-slate-400 mb-2 font-mono">
             <span className="text-[11px] font-semibold uppercase tracking-wider">Failed Checks</span>
             <AlertOctagon className="w-4 h-4 text-rose-400" />
           </div>
-          <div className="text-3xl font-extrabold text-rose-400 tracking-tight">
+          <div className="text-3xl font-extrabold text-rose-400 tracking-tight tabular-nums">
             {summary?.failed_checks ?? 0}
           </div>
           <p className="mt-1 text-xs text-slate-400 font-mono">Non-2xx or timeouts</p>

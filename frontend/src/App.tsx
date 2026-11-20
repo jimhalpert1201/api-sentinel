@@ -1,5 +1,6 @@
 import { FC } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { Toaster } from 'sonner';
 import { AuthProvider } from './context/AuthContext';
 import { ProtectedRoute } from './components/ProtectedRoute';
 import { Layout } from './components/Layout';
@@ -13,6 +14,19 @@ export const App: FC = () => {
   return (
     <BrowserRouter>
       <AuthProvider>
+        {/* Emil Kowalski's Sonner Toast Provider */}
+        <Toaster
+          theme="dark"
+          position="bottom-right"
+          richColors
+          closeButton
+          toastOptions={{
+            className:
+              'border border-white/10 bg-[#0e1526]/95 text-slate-100 backdrop-blur-md shadow-[0_8px_30px_rgb(0,0,0,0.6)] font-sans text-xs',
+            descriptionClassName: 'text-slate-400 font-normal',
+          }}
+        />
+
         <Routes>
           {/* Public Authentication Routes */}
           <Route path="/login" element={<LoginPage />} />

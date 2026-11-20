@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback, useMemo, FC } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { toast } from 'sonner';
 import { useAuth } from '../context/AuthContext';
 import { MonitorResponse, CheckResult } from '../types/monitor';
 import { IncidentResponse } from '../types/incident';
@@ -37,7 +38,7 @@ export const DashboardPage: FC = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingMonitor, setEditingMonitor] = useState<MonitorResponse | null>(null);
 
-  const fetchData = useCallback(async (quiet = false) => {
+  const fetchData = useCallback(async (quiet = false, showToast = false) => {
     if (!quiet) setIsLoading(true);
     else setIsRefreshing(true);
 
@@ -49,8 +50,16 @@ export const DashboardPage: FC = () => {
       setMonitors(monitorsRes);
       setIncidents(incidentsRes);
       setLastUpdated(new Date());
+      if (showToast) {
+        toast.success('Telemetry synchronized', {
+          description: `${monitorsRes.length} monitors scanned • ${new Date().toLocaleTimeString()}`,
+        });
+      }
     } catch (err) {
       console.error('Failed to fetch dashboard telemetry:', err);
+      if (showToast) {
+        toast.error('Failed to sync telemetry');
+      }
     } finally {
       setIsLoading(false);
       setIsRefreshing(false);
@@ -152,7 +161,7 @@ export const DashboardPage: FC = () => {
   return (
     <div className="space-y-8 animate-in fade-in duration-200">
       {/* 1. Observability Header & Operational Greeting */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-[#0e1526] border border-slate-800/80 p-6 rounded-2xl shadow-sm">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 surface-card p-6 rounded-2xl">
         <div className="space-y-1">
           <div className="flex items-center gap-3">
             <h2 className="text-xl sm:text-2xl font-bold text-white tracking-tight">
@@ -178,7 +187,7 @@ export const DashboardPage: FC = () => {
               </span>
             )}
 
-            <span className="text-xs text-slate-400 font-mono">
+            <span className="text-xs text-slate-400 font-mono tabular-nums">
               Last synced: {lastUpdated.toLocaleTimeString()}
             </span>
           </div>
@@ -187,11 +196,11 @@ export const DashboardPage: FC = () => {
         <div className="flex items-center gap-3 self-start md:self-auto">
           <button
             type="button"
-            onClick={() => fetchData(true)}
+            onClick={() => fetchData(true, true)}
             disabled={isRefreshing}
             aria-label="Refresh telemetry"
             title="Refresh telemetry"
-            className="flex items-center gap-2 px-3.5 py-2 rounded-xl bg-slate-900 border border-slate-800 text-slate-300 hover:text-white hover:bg-slate-800 transition-colors text-xs font-semibold"
+            className="btn-tactile flex items-center gap-2 px-3.5 py-2 rounded-xl bg-slate-900 border border-white/[0.08] text-slate-300 hover:text-white hover:bg-slate-800 text-xs font-semibold"
           >
             <RefreshCw className={`w-3.5 h-3.5 ${isRefreshing ? 'animate-spin text-emerald-400' : ''}`} />
             <span>Refresh</span>
@@ -200,7 +209,7 @@ export const DashboardPage: FC = () => {
           <button
             type="button"
             onClick={handleCreateNew}
-            className="flex items-center gap-2 px-4 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-slate-950 text-xs font-bold tracking-wide uppercase transition-colors shadow-md shadow-emerald-500/20"
+            className="btn-tactile flex items-center gap-2 px-4 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 text-xs font-bold tracking-wide uppercase shadow-[inset_0_1px_0_0_rgba(255,255,255,0.3),0_4px_12px_rgba(16,185,129,0.3)]"
           >
             <Plus className="w-4 h-4" />
             <span>New Monitor</span>
@@ -211,49 +220,49 @@ export const DashboardPage: FC = () => {
       {/* 2. Primary KPI Cards */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         {/* Total Fleet */}
-        <div className="bg-[#0e1526] border border-slate-800/80 rounded-2xl p-5 shadow-sm">
+        <div className="surface-card rounded-2xl p-5">
           <div className="flex items-center justify-between text-slate-400 mb-2">
             <span className="text-[11px] font-semibold uppercase tracking-wider font-mono">Monitored Fleet</span>
             <Radio className="w-4 h-4 text-slate-500" />
           </div>
-          <div className="text-3xl font-extrabold text-white tracking-tight">{totalMonitors}</div>
-          <p className="mt-1 text-xs text-slate-400">{pausedMonitors} paused</p>
+          <div className="text-3xl font-extrabold text-white tracking-tight tabular-nums">{totalMonitors}</div>
+          <p className="mt-1 text-xs text-slate-400 tabular-nums">{pausedMonitors} paused</p>
         </div>
 
         {/* Operational */}
-        <div className="bg-[#0e1526] border border-slate-800/80 rounded-2xl p-5 shadow-sm">
+        <div className="surface-card rounded-2xl p-5">
           <div className="flex items-center justify-between text-emerald-400 mb-2">
             <span className="text-[11px] font-semibold uppercase tracking-wider font-mono">Healthy</span>
             <CheckCircle2 className="w-4 h-4" />
           </div>
-          <div className="text-3xl font-extrabold text-emerald-400 tracking-tight">{upMonitors}</div>
+          <div className="text-3xl font-extrabold text-emerald-400 tracking-tight tabular-nums">{upMonitors}</div>
           <p className="mt-1 text-xs text-slate-400">Passing all assertions</p>
         </div>
 
         {/* Down Outages */}
-        <div className="bg-[#0e1526] border border-slate-800/80 rounded-2xl p-5 shadow-sm">
+        <div className="surface-card rounded-2xl p-5">
           <div className="flex items-center justify-between text-rose-400 mb-2">
             <span className="text-[11px] font-semibold uppercase tracking-wider font-mono">Down</span>
             <AlertTriangle className="w-4 h-4" />
           </div>
-          <div className="text-3xl font-extrabold text-rose-400 tracking-tight">{downMonitors}</div>
+          <div className="text-3xl font-extrabold text-rose-400 tracking-tight tabular-nums">{downMonitors}</div>
           <p className="mt-1 text-xs text-slate-400">Threshold breaches</p>
         </div>
 
         {/* Active Incidents */}
-        <div className="bg-[#0e1526] border border-slate-800/80 rounded-2xl p-5 shadow-sm">
+        <div className="surface-card rounded-2xl p-5">
           <div className="flex items-center justify-between text-amber-400 mb-2">
             <span className="text-[11px] font-semibold uppercase tracking-wider font-mono">Active Incidents</span>
             <Zap className="w-4 h-4" />
           </div>
-          <div className="text-3xl font-extrabold text-amber-400 tracking-tight">{totalActiveIncidents}</div>
+          <div className="text-3xl font-extrabold text-amber-400 tracking-tight tabular-nums">{totalActiveIncidents}</div>
           <p className="mt-1 text-xs text-slate-400">Open or investigating</p>
         </div>
       </div>
 
       {/* 3. System Health Dot Matrix (Section 10 of Design Direction) */}
       {monitors.length > 0 && (
-        <div className="bg-[#0e1526] border border-slate-800/80 rounded-2xl p-6 shadow-sm space-y-4">
+        <div className="surface-card rounded-2xl p-6 space-y-4">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div>
               <h3 className="text-sm font-bold text-white tracking-tight uppercase font-mono">

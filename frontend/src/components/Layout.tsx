@@ -1,5 +1,6 @@
 import { useState, FC } from 'react';
 import { NavLink, Outlet, useNavigate, useLocation } from 'react-router-dom';
+import { toast } from 'sonner';
 import { useAuth } from '../context/AuthContext';
 import {
   Activity,
@@ -22,6 +23,7 @@ export const Layout: FC = () => {
 
   const handleLogout = async () => {
     await logout();
+    toast.info('Signed out', { description: 'Session ended successfully' });
     navigate('/login', { replace: true });
   };
 

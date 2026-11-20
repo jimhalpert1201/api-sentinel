@@ -46,7 +46,7 @@ export const LatencyChart: FC<LatencyChartProps> = ({
   const hasData = chartData.some((pt) => pt.avgLatency != null);
 
   return (
-    <div className="bg-[#0e1526] border border-slate-800/80 rounded-2xl p-6 shadow-sm space-y-4">
+    <div className="surface-card rounded-2xl p-6 space-y-4">
       {/* Top Header & Window Tabs */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
@@ -56,16 +56,17 @@ export const LatencyChart: FC<LatencyChartProps> = ({
           <p className="text-xs text-slate-400">Sliding window average response time (ms)</p>
         </div>
 
-        <div className="flex items-center p-1 rounded-xl bg-[#080d19] border border-slate-800 text-xs font-mono font-medium self-start sm:self-auto">
+        <div className="flex items-center p-1 rounded-xl bg-[#080d19] border border-white/[0.08] text-xs font-mono font-medium self-start sm:self-auto">
           {(['24h', '7d', '30d'] as const).map((window) => (
             <button
               key={window}
               type="button"
               onClick={() => onWindowChange(window)}
-              className={`px-3 py-1.5 rounded-lg transition-colors ${currentWindow === window
-                  ? 'bg-slate-800 text-emerald-400 font-semibold shadow-sm'
+              className={`btn-tactile px-3 py-1.5 rounded-lg ${
+                currentWindow === window
+                  ? 'bg-slate-800 text-emerald-400 font-semibold shadow-[inset_0_1px_0_0_rgba(255,255,255,0.08)]'
                   : 'text-slate-400 hover:text-slate-200'
-                }`}
+              }`}
             >
               {window.toUpperCase()}
             </button>

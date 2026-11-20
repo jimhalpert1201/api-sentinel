@@ -4,7 +4,26 @@
 
 @layer base {
   body {
-    @apply bg-slate-950 text-slate-100 font-sans;
+    @apply bg-[#080d19] text-slate-100 font-sans antialiased selection:bg-emerald-500/30 selection:text-emerald-200;
+  }
+}
+
+/* Emil Kowalski-inspired tactile surface & button utilities */
+@layer utilities {
+  .surface-card {
+    @apply bg-[#0e1526]/90 backdrop-blur-md border border-white/[0.08] shadow-[inset_0_1px_0_0_rgba(255,255,255,0.08),0_8px_24px_-4px_rgba(0,0,0,0.5)];
+  }
+
+  .surface-panel {
+    @apply bg-[#0a0f1d] border border-white/[0.06] shadow-[inset_0_1px_0_0_rgba(255,255,255,0.05)];
+  }
+
+  .btn-tactile {
+    @apply transition-all duration-100 ease-out active:scale-[0.97] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400/50;
+  }
+
+  .tabular-nums {
+    font-variant-numeric: tabular-nums;
   }
 }
 
@@ -26,4 +45,3 @@
 ::-webkit-scrollbar-thumb:hover {
   background: #334155;
 }
-

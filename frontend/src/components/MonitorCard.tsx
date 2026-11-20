@@ -1,5 +1,6 @@
 import { useState, FC, MouseEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { toast } from 'sonner';
 import { MonitorResponse, CheckResult } from '../types/monitor';
 import { IncidentResponse } from '../types/incident';
 import { monitorsApi } from '../api/monitors';
@@ -52,11 +53,25 @@ export const MonitorCard: FC<MonitorCardProps> = ({
     try {
       const result = await monitorsApi.triggerCheck(monitor.id);
       setLastCheckResult(result);
+
+      if (result.is_successful) {
+        toast.success(`Probe succeeded for ${monitor.name}`, {
+          description: `Status: ${result.status_code ?? 200} OK • Latency: ${
+            result.response_time_ms != null ? `${Math.round(result.response_time_ms)}ms` : 'N/A'
+          }`,
+        });
+      } else {
+        toast.error(`Probe failed for ${monitor.name}`, {
+          description: result.error_message || `HTTP ${result.status_code ?? 'Error'} returned`,
+        });
+      }
+
       if (onCheckComplete) {
         onCheckComplete(result);
       }
-    } catch (err) {
+    } catch (err: unknown) {
       console.error('Manual check failed:', err);
+      toast.error(`Failed to execute probe for ${monitor.name}`);
     } finally {
       setIsChecking(false);
     }
@@ -65,15 +80,29 @@ export const MonitorCard: FC<MonitorCardProps> = ({
   const handleToggleActive = async (e: MouseEvent) => {
     e.stopPropagation();
     setIsToggling(true);
+    const nextState = !monitor.is_active;
+
     try {
       const updated = await monitorsApi.updateMonitor(monitor.id, {
-        is_active: !monitor.is_active,
+        is_active: nextState,
       });
+
+      if (nextState) {
+        toast.info(`Monitoring resumed for ${monitor.name}`, {
+          description: `Active checks running every ${monitor.interval_seconds}s`,
+        });
+      } else {
+        toast.info(`Monitoring paused for ${monitor.name}`, {
+          description: 'Scheduler will skip this target until resumed',
+        });
+      }
+
       if (onStatusToggle) {
         onStatusToggle(updated);
       }
     } catch (err) {
       console.error('Failed to toggle monitor status:', err);
+      toast.error(`Could not toggle state for ${monitor.name}`);
     } finally {
       setIsToggling(false);
     }
@@ -83,6 +112,9 @@ export const MonitorCard: FC<MonitorCardProps> = ({
     e.stopPropagation();
     if (window.confirm(`Are you sure you want to delete monitor "${monitor.name}"?`)) {
       onDelete(monitor.id);
+      toast.success(`Monitor "${monitor.name}" deleted`, {
+        description: 'Target removed from telemetry fleet',
+      });
     }
   };
 
@@ -93,7 +125,7 @@ export const MonitorCard: FC<MonitorCardProps> = ({
   return (
     <div
       onClick={handleCardClick}
-      className="group relative bg-[#0e1526] border border-slate-800/80 hover:border-slate-700/80 rounded-2xl p-5 shadow-lg hover:shadow-xl transition-all cursor-pointer flex flex-col justify-between"
+      className="group relative surface-card hover:border-white/20 rounded-2xl p-5 cursor-pointer flex flex-col justify-between transition-all duration-150"
     >
       <div>
         {/* Top Header: Status Badge & HTTP Method */}
@@ -157,39 +189,40 @@ export const MonitorCard: FC<MonitorCardProps> = ({
 
         {/* Metric / Ping summary pills */}
         <div className="mt-4 grid grid-cols-2 gap-2 text-xs font-mono">
-          <div className="p-2 rounded-xl bg-[#080d19] border border-slate-800/80 flex items-center justify-between">
+          <div className="p-2 rounded-xl bg-[#080d19] border border-white/[0.06] flex items-center justify-between">
             <span className="text-slate-400 flex items-center gap-1">
               <Clock className="w-3 h-3 text-slate-500" />
               Interval
             </span>
-            <span className="font-medium text-slate-200">{monitor.interval_seconds}s</span>
+            <span className="font-medium text-slate-200 tabular-nums">{monitor.interval_seconds}s</span>
           </div>
 
-          <div className="p-2 rounded-xl bg-[#080d19] border border-slate-800/80 flex items-center justify-between">
+          <div className="p-2 rounded-xl bg-[#080d19] border border-white/[0.06] flex items-center justify-between">
             <span className="text-slate-400">Response</span>
             {lastCheckResult ? (
               <span
-                className={`font-mono font-medium ${lastCheckResult.is_successful ? 'text-emerald-400' : 'text-rose-400'
-                  }`}
+                className={`font-mono font-medium tabular-nums ${
+                  lastCheckResult.is_successful ? 'text-emerald-400' : 'text-rose-400'
+                }`}
               >
                 {lastCheckResult.response_time_ms != null
                   ? `${Math.round(lastCheckResult.response_time_ms)}ms`
                   : 'Fail'}
               </span>
             ) : (
-              <span className="font-mono text-slate-400">{monitor.expected_status_code} OK</span>
+              <span className="font-mono text-slate-400 tabular-nums">{monitor.expected_status_code} OK</span>
             )}
           </div>
         </div>
       </div>
 
       {/* Footer Controls: Check Now & Action Buttons */}
-      <div className="mt-5 pt-3 border-t border-slate-800/80 flex items-center justify-between gap-2">
+      <div className="mt-5 pt-3 border-t border-white/[0.06] flex items-center justify-between gap-2">
         <button
           type="button"
           onClick={handleTriggerCheck}
           disabled={isChecking}
-          className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/30 text-emerald-400 text-xs font-semibold transition-all disabled:opacity-50"
+          className="btn-tactile flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/30 text-emerald-400 text-xs font-semibold disabled:opacity-50"
         >
           {isChecking ? (
             <>
@@ -211,7 +244,7 @@ export const MonitorCard: FC<MonitorCardProps> = ({
             disabled={isToggling}
             aria-label={monitor.is_active ? 'Pause monitor' : 'Resume monitor'}
             title={monitor.is_active ? 'Pause monitor' : 'Resume monitor'}
-            className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"
+            className="btn-tactile p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800"
           >
             {monitor.is_active ? (
               <Pause className="w-4 h-4" />
@@ -228,7 +261,7 @@ export const MonitorCard: FC<MonitorCardProps> = ({
             }}
             aria-label="Edit monitor"
             title="Edit monitor"
-            className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"
+            className="btn-tactile p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800"
           >
             <Edit2 className="w-4 h-4" />
           </button>
@@ -238,7 +271,7 @@ export const MonitorCard: FC<MonitorCardProps> = ({
             onClick={handleDelete}
             aria-label="Delete monitor"
             title="Delete monitor"
-            className="p-1.5 rounded-lg text-slate-400 hover:text-rose-400 hover:bg-rose-500/10 transition-colors"
+            className="btn-tactile p-1.5 rounded-lg text-slate-400 hover:text-rose-400 hover:bg-rose-500/10"
           >
             <Trash2 className="w-4 h-4" />
           </button>
@@ -247,4 +280,3 @@ export const MonitorCard: FC<MonitorCardProps> = ({
     </div>
   );
 };
-

@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback, useMemo, FC } from 'react';
 import { Link } from 'react-router-dom';
+import { toast } from 'sonner';
 import { IncidentResponse } from '../types/incident';
 import { MonitorResponse } from '../types/monitor';
 import { incidentsApi } from '../api/incidents';
@@ -123,9 +124,15 @@ export const IncidentsPage: FC = () => {
       setIncidents((prev) => prev.map((i) => (i.id === updated.id ? updated : i)));
       // Automatically expand timeline to show acknowledgment entry
       setExpandedIncidentIds((prev) => new Set(prev).add(updated.id));
+      toast.success('Incident acknowledged', {
+        description: ackNotes.trim()
+          ? `Operator notes: "${ackNotes.trim()}"`
+          : 'Status changed to acknowledged',
+      });
       setAckIncident(null);
     } catch (err) {
       console.error('Failed to acknowledge incident:', err);
+      toast.error('Failed to acknowledge incident');
     } finally {
       setIsSubmittingAck(false);
     }
